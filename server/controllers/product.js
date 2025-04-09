@@ -59,3 +59,33 @@ exports.deleteProduct = async (req, res, next) => {
     next(err);
   }
 };
+
+
+exports.getNearestStoreProducts = async (req, res) => {
+  const { lat, lng } = req.query;
+
+  try {
+    const nearestShop = await Shop.findOne({
+      location: {
+        $near: {
+          $geometry: {
+            type: "Point",
+            coordinates: [parseFloat(lng), parseFloat(lat)] // Note: [lng, lat]
+          },
+          $maxDistance: 10000 // optional: within 10km radius
+        }
+      }
+    });
+
+    if (!nearestShop) {
+      return res.status(404).json({ message: "No nearby shops found" });
+    }
+
+    const products = await Product.find({ shopName: nearestShop.shopName });
+
+    res.json({ shop: nearestShop.shopName, products });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
+  }
+};

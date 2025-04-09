@@ -1,108 +1,104 @@
-import type { Product } from "@/types"
+import type { Product } from "../types"
 
 export const products: Product[] = [
   {
-    id: "p1",
+    _id: "1",
     name: "Organic Apples",
-    description: "Fresh, crisp organic apples. Locally sourced and perfect for snacking or baking.",
-    price: 4.99,
-    oldPrice: 5.99,
+    description: "Fresh organic apples from local farms",
+    price: 2.99,
+    oldPrice: 3.49,
     category: "fruits",
-    image: "/placeholder.svg?height=300&width=300",
-    featured: true,
+    image: "/placeholder.svg",
+    featured: true
   },
   {
-    id: "p2",
+    _id: "2", 
     name: "Whole Grain Bread",
-    description: "Freshly baked whole grain bread. Rich in fiber and perfect for sandwiches.",
-    price: 3.49,
+    description: "Freshly baked whole grain bread",
+    price: 3.99,
     category: "bakery",
-    image: "/placeholder.svg?height=300&width=300",
-    featured: true,
+    image: "/placeholder.svg"
   },
   {
-    id: "p3",
+    _id: "3",
     name: "Free Range Eggs",
-    description: "Farm fresh free-range eggs from ethically raised chickens.",
-    price: 5.99,
-    category: "dairy",
-    image: "/placeholder.svg?height=300&width=300",
-  },
-  {
-    id: "p4",
-    name: "Organic Milk",
-    description: "Creamy organic milk from grass-fed cows. No hormones or antibiotics.",
-    price: 3.99,
-    category: "dairy",
-    image: "/placeholder.svg?height=300&width=300",
-    featured: true,
-  },
-  {
-    id: "p5",
-    name: "Fresh Strawberries",
-    description: "Sweet and juicy strawberries. Perfect for desserts or eating fresh.",
-    price: 6.99,
-    oldPrice: 8.99,
-    category: "fruits",
-    image: "/placeholder.svg?height=300&width=300",
-  },
-  {
-    id: "p6",
-    name: "Grass-Fed Beef",
-    description: "Premium grass-fed beef. Lean, flavorful, and ethically raised.",
-    price: 15.99,
-    category: "meat",
-    image: "/placeholder.svg?height=300&width=300",
-    featured: true,
-  },
-  {
-    id: "p7",
-    name: "Organic Spinach",
-    description: "Fresh organic spinach. Packed with nutrients and perfect for salads or cooking.",
-    price: 3.99,
-    category: "vegetables",
-    image: "/placeholder.svg?height=300&width=300",
-  },
-  {
-    id: "p8",
-    name: "Sourdough Bread",
-    description: "Artisanal sourdough bread. Crusty exterior with a soft, tangy interior.",
+    description: "Organic free range eggs (dozen)",
     price: 4.99,
-    category: "bakery",
-    image: "/placeholder.svg?height=300&width=300",
+    category: "dairy",
+    image: "/placeholder.svg",
+    featured: true
   },
   {
-    id: "p9",
-    name: "Avocados",
-    description: "Ripe, creamy avocados. Perfect for guacamole, salads, or toast.",
-    price: 6.99,
-    category: "fruits",
-    image: "/placeholder.svg?height=300&width=300",
+    _id: "4",
+    name: "Almond Milk",
+    description: "Unsweetened almond milk 1L",
+    price: 2.49,
+    category: "dairy",
+    image: "/placeholder.svg"
   },
   {
-    id: "p10",
-    name: "Organic Chicken",
-    description: "Free-range organic chicken. Raised without antibiotics or hormones.",
-    price: 12.99,
-    category: "meat",
-    image: "/placeholder.svg?height=300&width=300",
-    featured: true,
-  },
-  {
-    id: "p11",
-    name: "Wild Salmon",
-    description: "Wild-caught salmon fillets. Rich in omega-3 fatty acids and protein.",
-    price: 18.99,
-    category: "meat",
-    image: "/placeholder.svg?height=300&width=300",
-  },
-  {
-    id: "p12",
-    name: "Organic Broccoli",
-    description: "Fresh organic broccoli. Packed with vitamins and minerals.",
-    price: 3.99,
+    _id: "5",
+    name: "Organic Spinach",
+    description: "Fresh organic spinach bunch",
+    price: 1.99,
     category: "vegetables",
-    image: "/placeholder.svg?height=300&width=300",
+    image: "/placeholder.svg"
   },
+  {
+    _id: "6",
+    name: "Grass-Fed Beef",
+    description: "Premium grass-fed beef 500g",
+    price: 8.99,
+    oldPrice: 9.99,
+    category: "meat",
+    image: "/placeholder.svg"
+  },
+  {
+    _id: "7",
+    name: "Avocados",
+    description: "Ripe Hass avocados",
+    price: 1.49,
+    category: "fruits",
+    image: "/placeholder.svg"
+  },
+  {
+    _id: "8",
+    name: "Greek Yogurt",
+    description: "Creamy Greek yogurt 500g",
+    price: 3.49,
+    category: "dairy",
+    image: "/placeholder.svg"
+  },
+  {
+    _id: "9",
+    name: "Whole Chicken",
+    description: "Free range whole chicken",
+    price: 7.99,
+    category: "meat",
+    image: "/placeholder.svg"
+  },
+  {
+    _id: "10",
+    name: "Tomatoes",
+    description: "Vine-ripened tomatoes",
+    price: 2.29,
+    category: "vegetables",
+    image: "/placeholder.svg"
+  },
+  {
+    _id: "11",
+    name: "Cheddar Cheese",
+    description: "Aged cheddar cheese 200g",
+    price: 3.99,
+    category: "dairy",
+    image: "/placeholder.svg"
+  },
+  {
+    _id: "12",
+    name: "Bananas",
+    description: "Organic bananas bunch",
+    price: 1.29,
+    category: "fruits",
+    image: "/placeholder.svg"
+  }
 ]
-

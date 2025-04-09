@@ -1,11 +1,11 @@
 'use client'
-import { Toaster } from 'components/ui/toaster'
-import { ThemeProvider } from 'components/theme-provider'
-import Navbar from 'components/navbar'
-import Footer from 'components/footer'
-import { CartProvider } from 'context/cart-context'
-import { AuthProvider } from 'context/auth-context'
-import { ProductProvider } from 'context/product-context'
+import { Toaster } from '../components/ui/sonner'
+import { ThemeProvider } from '../components/theme-provider'
+import Navbar from '../components/navbar'
+import Footer from '../components/footer'
+import { CartProvider } from '../context/cart-context'
+import { AuthProvider } from '../context/auth-context'
+import { ProductProvider } from '../context/product-context'
 import './globals.css'
 
 export default function RootLayout({

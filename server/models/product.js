@@ -9,7 +9,7 @@ const productSchema = new mongoose.Schema({
   image: String,
   oldPrice: Number,
   shopName: String,
-  featured: Boolean
+  featured: Boolean,
 }, { timestamps: true });
 
 const Product = mongoose.model("product", productSchema);

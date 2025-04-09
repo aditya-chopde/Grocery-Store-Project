@@ -1,10 +1,12 @@
 "use client"
 
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
-import type { Product } from "@/types"
+import type { Product } from "../types"
+import { useToast } from "../components/ui/use-toast"
+import { useAuth } from "./auth-context"
 
-// Define cart item type
-interface CartItem {
+// Define and export cart item type
+export interface CartItem {
   product: Product
   quantity: number
 }
@@ -24,6 +26,8 @@ const CartContext = createContext<CartContextType | undefined>(undefined)
 // Provider component
 export function CartProvider({ children }: { children: ReactNode }) {
   const [cart, setCart] = useState<CartItem[]>([])
+  const { toast } = useToast()
+  const { user } = useAuth()
 
   // Load cart from localStorage on initial render
   useEffect(() => {
@@ -45,17 +49,23 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   // Add product to cart
   const addToCart = (product: Product, quantity: number) => {
+    if (!user) {
+      toast({
+        title: "Login required",
+        description: "Please login to add items to your cart",
+        variant: "destructive"
+      })
+      return
+    }
+
     setCart((prevCart) => {
-      // Check if product already exists in cart
-      const existingItemIndex = prevCart.findIndex((item) => item.product.id === product.id)
+      const existingItemIndex = prevCart.findIndex((item) => item.product._id === product._id)
 
       if (existingItemIndex !== -1) {
-        // Update quantity if product exists
         const updatedCart = [...prevCart]
         updatedCart[existingItemIndex].quantity += quantity
         return updatedCart
       } else {
-        // Add new item if product doesn't exist
         return [...prevCart, { product, quantity }]
       }
     })
@@ -63,16 +73,40 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   // Remove product from cart
   const removeFromCart = (productId: string) => {
-    setCart((prevCart) => prevCart.filter((item) => item.product.id !== productId))
+    if (!user) {
+      toast({
+        title: "Login required",
+        description: "Please login to manage your cart",
+        variant: "destructive"
+      })
+      return
+    }
+    setCart((prevCart) => prevCart.filter((item) => item.product._id !== productId))
   }
 
   // Update product quantity
   const updateQuantity = (productId: string, quantity: number) => {
-    setCart((prevCart) => prevCart.map((item) => (item.product.id === productId ? { ...item, quantity } : item)))
+    if (!user) {
+      toast({
+        title: "Login required",
+        description: "Please login to manage your cart",
+        variant: "destructive"
+      })
+      return
+    }
+    setCart((prevCart) => prevCart.map((item) => (item.product._id === productId ? { ...item, quantity } : item)))
   }
 
   // Clear cart
   const clearCart = () => {
+    if (!user) {
+      toast({
+        title: "Login required",
+        description: "Please login to manage your cart",
+        variant: "destructive"
+      })
+      return
+    }
     setCart([])
   }
 
@@ -91,4 +125,3 @@ export function useCart() {
   }
   return context
 }
-

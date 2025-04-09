@@ -16,6 +16,12 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  cart: [
+    {
+      productId: { type: mongoose.Schema.Types.ObjectId, ref: "product" },
+      quantity: { type: Number, default: 1 }
+    }
+  ],
 });
 
 // Hash password before saving

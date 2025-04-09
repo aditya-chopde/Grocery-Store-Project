@@ -10,7 +10,6 @@ import { Label } from "@/components/ui/label"
 import { Slider } from "@/components/ui/slider"
 import ProductCard from "@/components/product-card"
 import type { Product } from "@/types"
-import { products } from "@/data/products"
 import { categories } from "@/data/categories"
 import Pagination from "@/components/pagination"
 import { useProducts } from "@/context/product-context"
@@ -23,6 +22,9 @@ export default function ProductsPage() {
   const [priceRange, setPriceRange] = useState([0, 100])
   const [currentPage, setCurrentPage] = useState(1)
   const [products, setProducts] = useState<Product[]>([])
+  const [shopName, setShopName] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
   const productsPerPage = 12
 
   // Filter products based on search, categories, and price
@@ -67,6 +69,37 @@ export default function ProductsPage() {
     const { data } = await apiClient.get<Product[]>("/api/products")
     setProducts(data)
   }
+
+  // useEffect(() => {
+  //   navigator.geolocation.getCurrentPosition(
+  //     async (success) => {
+  //       const { latitude, longitude } = success.coords;
+  //       console.log('User Location:', latitude, longitude);
+
+  //       try {
+  //         const response = await apiClient.get('/api/products/nearest-shop-products', {
+  //           params: {
+  //             lat: latitude,
+  //             lng: longitude,
+  //           },
+  //         });
+  //         console.log(response)
+  //         // setProducts(response.data.products);
+  //         // setShopName(response.data.shop);
+  //         setLoading(false);
+  //       } catch (err) {
+  //         console.error(err);
+  //         setError('Failed to fetch products');
+  //         setLoading(false);
+  //       }
+  //     },
+  //     (err) => {
+  //       console.error(err);
+  //       setError('Geolocation permission denied or unavailable');
+  //       setLoading(false);
+  //     }
+  //   );
+  // }, []);
 
   useEffect(() => {
     fetchData()

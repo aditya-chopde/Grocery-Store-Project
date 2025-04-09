@@ -3,47 +3,64 @@
 import { useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
-import { Trash2, Minus, Plus, ShoppingBag } from "lucide-react"
+import { Trash2, Minus, Plus, ShoppingBag, LogIn } from "lucide-react"
 
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardFooter } from "@/components/ui/card"
-import { Separator } from "@/components/ui/separator"
-import { useCart } from "@/context/cart-context"
-import { useToast } from "@/components/ui/use-toast"
+// Import from local paths
+import { Button } from "../../components/ui/button"
+import { Card, CardContent, CardFooter } from "../../components/ui/card"
+import { Separator } from "../../components/ui/separator"
+import { useCart, type CartItem } from "../../context/cart-context"
+import { useToast } from "../../components/ui/use-toast"
+import { useAuth } from "../../context/auth-context"
 
 export default function CartPage() {
   const { cart, updateQuantity, removeFromCart, clearCart } = useCart()
   const { toast } = useToast()
+  const { user } = useAuth()
   const [isUpdating, setIsUpdating] = useState(false)
 
+  if (!user) {
+    return (
+      <div className="container mx-auto px-4 py-16 text-center">
+        <LogIn className="mx-auto h-16 w-16 text-gray-400 mb-4" />
+        <h1 className="text-2xl font-bold mb-4">Please login to view your cart</h1>
+        <p className="text-gray-500 mb-8">You need to be logged in to access your shopping cart.</p>
+        <Button asChild className="bg-green-600 hover:bg-green-700">
+          <Link href="/login">Login Now</Link>
+        </Button>
+      </div>
+    )
+  }
+
   // Calculate totals
-  const subtotal = cart.reduce((total, item) => total + item.product.price * item.quantity, 0)
+  const subtotal = cart.reduce((total: number, item: CartItem) => 
+    total + item.product.price * item.quantity, 0)
   const shipping = subtotal > 50 ? 0 : 5.99
   const total = subtotal + shipping
 
-  // Handle quantity update with debounce
-  const handleQuantityUpdate = (productId: string, newQuantity: number) => {
+  // Handle quantity update
+  const handleQuantityChange = (productId: string, newQuantity: number) => {
     if (newQuantity < 1) return
-
     setIsUpdating(true)
     updateQuantity(productId, newQuantity)
-
-    // Simulate network request
-    setTimeout(() => {
-      setIsUpdating(false)
-      toast({
-        title: "Cart updated",
-        description: "Your cart has been updated successfully",
-      })
-    }, 500)
+    setIsUpdating(false)
   }
 
-  // Handle item removal
-  const handleRemoveItem = (productId: string, productName: string) => {
+  // Handle remove item
+  const handleRemoveItem = (productId: string) => {
     removeFromCart(productId)
     toast({
       title: "Item removed",
-      description: `${productName} has been removed from your cart`,
+      description: "The item has been removed from your cart",
+    })
+  }
+
+  // Handle clear cart
+  const handleClearCart = () => {
+    clearCart()
+    toast({
+      title: "Cart cleared",
+      description: "All items have been removed from your cart",
     })
   }
 
@@ -67,146 +84,108 @@ export default function CartPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Cart Items */}
-        <div className="lg:col-span-2">
-          <div className="bg-white rounded-lg shadow-sm">
-            <div className="p-4 border-b">
-              <h2 className="font-medium">Cart Items ({cart.length})</h2>
-            </div>
-
-            {cart.map((item) => (
-              <div key={item.product.id} className="p-4 border-b last:border-0">
-                <div className="flex flex-col sm:flex-row gap-4">
+        <div className="lg:col-span-2 space-y-4">
+          {cart.map((item: CartItem) => (
+            <Card key={item.product._id}>
+              <CardContent className="p-4">
+                <div className="flex gap-4">
                   {/* Product Image */}
-                  <div className="flex-shrink-0">
+                  <div className="relative w-24 h-24 rounded-md overflow-hidden">
                     <Image
-                      src={item.product.image || "/placeholder.svg?height=100&width=100"}
+                      src={item.product.image || "/placeholder.svg"}
                       alt={item.product.name}
-                      width={100}
-                      height={100}
-                      className="w-24 h-24 object-cover rounded-md"
+                      fill
+                      className="object-cover"
                     />
                   </div>
 
-                  {/* Product Details */}
+                  {/* Product Info */}
                   <div className="flex-1">
-                    <div className="flex flex-col sm:flex-row sm:justify-between mb-2">
-                      <Link
-                        href={`/products/${item.product.id}`}
-                        className="font-medium hover:text-green-600 transition-colors"
-                      >
-                        {item.product.name}
-                      </Link>
-                      <div className="font-medium">${(item.product.price * item.quantity).toFixed(2)}</div>
-                    </div>
+                    <h3 className="font-medium">{item.product.name}</h3>
+                    <p className="text-gray-500 text-sm">{item.product.category}</p>
+                    <p className="font-bold text-green-600 mt-1">${item.product.price.toFixed(2)}</p>
+                  </div>
 
-                    <p className="text-gray-500 text-sm mb-4">{item.product.category}</p>
-
-                    <div className="flex justify-between items-center">
-                      {/* Quantity Controls */}
-                      <div className="flex items-center border rounded-md">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleQuantityUpdate(item.product.id, item.quantity - 1)}
-                          disabled={item.quantity <= 1 || isUpdating}
-                          className="h-8 w-8"
-                        >
-                          <Minus className="h-3 w-3" />
-                        </Button>
-                        <span className="w-8 text-center text-sm">{item.quantity}</span>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleQuantityUpdate(item.product.id, item.quantity + 1)}
-                          disabled={isUpdating}
-                          className="h-8 w-8"
-                        >
-                          <Plus className="h-3 w-3" />
-                        </Button>
-                      </div>
-
-                      {/* Remove Button */}
+                  {/* Quantity Controls */}
+                  <div className="flex flex-col items-end">
+                    <div className="flex items-center gap-2">
                       <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleRemoveItem(item.product.id, item.product.name)}
-                        className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                        variant="outline"
+                        size="icon"
+                        className="h-8 w-8"
+                        onClick={() => handleQuantityChange(item.product._id, item.quantity - 1)}
+                        disabled={item.quantity <= 1 || isUpdating}
                       >
-                        <Trash2 className="h-4 w-4 mr-1" />
-                        Remove
+                        <Minus className="h-4 w-4" />
+                      </Button>
+                      <span className="w-8 text-center">{item.quantity}</span>
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        className="h-8 w-8"
+                        onClick={() => handleQuantityChange(item.product._id, item.quantity + 1)}
+                        disabled={isUpdating}
+                      >
+                        <Plus className="h-4 w-4" />
                       </Button>
                     </div>
+
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="text-red-500 hover:text-red-600 mt-2"
+                      onClick={() => handleRemoveItem(item.product._id)}
+                      disabled={isUpdating}
+                    >
+                      <Trash2 className="h-4 w-4 mr-1" />
+                      Remove
+                    </Button>
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              </CardContent>
+            </Card>
+          ))}
 
-          <div className="mt-4 flex justify-between">
-            <Button
-              variant="outline"
-              onClick={() => {
-                clearCart()
-                toast({
-                  title: "Cart cleared",
-                  description: "All items have been removed from your cart",
-                })
-              }}
-            >
+          <div className="flex justify-end">
+            <Button variant="outline" onClick={handleClearCart} disabled={isUpdating}>
               Clear Cart
-            </Button>
-            <Button asChild>
-              <Link href="/products">Continue Shopping</Link>
             </Button>
           </div>
         </div>
 
         {/* Order Summary */}
-        <div>
+        <div className="space-y-4">
           <Card>
-            <CardContent className="p-6">
-              <h2 className="text-xl font-bold mb-4">Order Summary</h2>
+            <CardContent className="p-4">
+              <h2 className="text-lg font-bold mb-4">Order Summary</h2>
 
-              <div className="space-y-3">
+              <div className="space-y-2">
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Subtotal</span>
+                  <span>Subtotal</span>
                   <span>${subtotal.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Shipping</span>
-                  <span>{shipping === 0 ? "Free" : `$${shipping.toFixed(2)}`}</span>
+                  <span>Shipping</span>
+                  <span>${shipping.toFixed(2)}</span>
                 </div>
-                <Separator />
+
+                <Separator className="my-2" />
+
                 <div className="flex justify-between font-bold">
                   <span>Total</span>
                   <span>${total.toFixed(2)}</span>
                 </div>
               </div>
             </CardContent>
-            <CardFooter>
-              <Button asChild className="w-full bg-green-600 hover:bg-green-700">
-                <Link href="/checkout">Proceed to Checkout</Link>
+
+            <CardFooter className="p-4">
+              <Button className="w-full bg-green-600 hover:bg-green-700" disabled={isUpdating}>
+                Proceed to Checkout
               </Button>
             </CardFooter>
           </Card>
-
-          <div className="mt-6 bg-gray-50 rounded-lg p-4">
-            <h3 className="font-medium mb-2">We Accept</h3>
-            <div className="flex gap-2">
-              <div className="bg-white p-2 rounded border">
-                <Image src="/placeholder.svg?height=30&width=40" alt="Visa" width={40} height={30} />
-              </div>
-              <div className="bg-white p-2 rounded border">
-                <Image src="/placeholder.svg?height=30&width=40" alt="Mastercard" width={40} height={30} />
-              </div>
-              <div className="bg-white p-2 rounded border">
-                <Image src="/placeholder.svg?height=30&width=40" alt="PayPal" width={40} height={30} />
-              </div>
-            </div>
-          </div>
         </div>
       </div>
     </div>
   )
 }
-

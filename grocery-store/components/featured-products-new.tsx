@@ -4,14 +4,23 @@ import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { Button } from '../components/ui/button'
 import ProductCard from '../components/product-card'
 import { useProducts } from '../context/product-context'
+import type { BaseProduct, Product } from '../types'
 
 export default function FeaturedProducts() {
-  const { products, loading } = useProducts()
+  const { products: baseProducts, loading } = useProducts()
   const [currentPage, setCurrentPage] = useState(0)
   const [itemsPerPage, setItemsPerPage] = useState(4)
 
   // Get featured products from context
-  const featuredProducts = products.filter((p: Product) => p.featured).slice(0, 8)
+  const featuredProducts = (baseProducts as BaseProduct[])
+    .filter((p): p is Product => 
+      p.featured === true && 
+      typeof p.image === 'string' && 
+      p.image.length > 0 &&
+      typeof p.shopName === 'string'
+    )
+    .slice(0, 8)
+  
   const totalPages = Math.ceil(featuredProducts.length / itemsPerPage)
   const currentProducts = featuredProducts.slice(
     currentPage * itemsPerPage, 

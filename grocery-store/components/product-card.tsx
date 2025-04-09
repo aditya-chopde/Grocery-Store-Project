@@ -1,95 +1,95 @@
-"use client"
-
-import type React from "react"
-
-import { useState } from "react"
-import Link from "next/link"
-import Image from "next/image"
-import { Heart, ShoppingCart } from "lucide-react"
-
-import { Button } from "@/components/ui/button"
-import { useToast } from "@/components/ui/use-toast"
-import { useCart } from "@/context/cart-context"
-import type { Product } from "@/types"
+'use client'
+import Image from 'next/image'
+import Link from 'next/link'
+import { Star } from 'lucide-react'
+import { Button } from './ui/button'
+import { useCart } from '../context/cart-context'
+import { useAuth } from '../context/auth-context'
+import type { Product } from '../types'
 
 interface ProductCardProps {
-  product: Product
+  product: {
+    _id: string
+    name: string
+    description: string
+    price: number
+    oldPrice?: number
+    category: string
+    image: string
+    featured?: boolean
+    shopName?: string
+  }
 }
 
 export default function ProductCard({ product }: ProductCardProps) {
   const { addToCart } = useCart()
-  const { toast } = useToast()
-  const [isHovered, setIsHovered] = useState(false)
+  const { user } = useAuth()
 
-  const handleAddToCart = (e: React.MouseEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
-
-    addToCart(product, 1)
-    toast({
-      title: "Added to cart",
-      description: `${product.name} added to your cart`,
-    })
+  const handleAddToCart = () => {
+    addToCart({
+      _id: product._id,
+      name: product.name,
+      description: product.description,
+      price: product.price,
+      oldPrice: product.oldPrice,
+      category: product.category,
+      image: product.image,
+      featured: product.featured || false,
+      shopName: product.shopName || ''
+    }, 1)
   }
 
   return (
-    <Link href={`/products/${product._id}`}>
-      <div
-        className="group relative bg-white dark:bg-gray-800 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700 transition-all duration-300 hover:shadow-md"
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
-      >
-        {/* Product Image */}
-        <div className="relative aspect-square overflow-hidden">
-          <Image
-            src={product.image || "/placeholder.svg?height=300&width=300"}
-            alt={product.name}
-            width={300}
-            height={300}
-            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-          />
+    <div className="group relative flex flex-col gap-4 rounded-lg border p-4 shadow-sm transition-all hover:shadow-md">
+      {product.featured && (
+        <div className="absolute right-2 top-2 rounded-full bg-green-600 px-2 py-1 text-xs font-medium text-white">
+          Featured
+        </div>
+      )}
+      
+      <Link href={`/products/${product._id}`} className="relative aspect-square overflow-hidden rounded-lg">
+        <Image
+          src={product.image || '/placeholder.svg'}
+          alt={product.name}
+          fill
+          className="object-cover transition-all group-hover:scale-105"
+        />
+      </Link>
 
-          {/* Discount Badge */}
-          {product.oldPrice && (
-            <div className="absolute top-2 left-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded">
-              {Math.round(((product.oldPrice - product.price) / product.oldPrice) * 100)}% OFF
-            </div>
+      <div className="flex flex-col gap-2">
+        <div className="flex items-center justify-between">
+          <h3 className="text-lg font-medium">{product.name}</h3>
+          {product.shopName && (
+            <span className="text-sm text-gray-500">{product.shopName}</span>
           )}
+        </div>
 
-          {/* Quick Actions */}
-          <div
-            className={`absolute bottom-0 left-0 right-0 bg-black/70 p-2 flex justify-between transition-transform duration-300 ${
-              isHovered ? "translate-y-0" : "translate-y-full"
-            }`}
-          >
-            <Button
-              variant="ghost"
-              size="sm"
-              className="text-white hover:text-white hover:bg-black/50 flex-1"
-              onClick={handleAddToCart}
-            >
-              <ShoppingCart className="h-4 w-4 mr-1" />
-              Add to Cart
-            </Button>
+        <p className="text-sm text-gray-600 line-clamp-2">{product.description}</p>
+
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-1">
+            <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+            <span className="text-sm font-medium">4.8</span>
+          </div>
+
+          <div className="flex flex-col items-end">
+            {product.oldPrice && (
+              <span className="text-sm text-gray-400 line-through">
+                ${product.oldPrice.toFixed(2)}
+              </span>
+            )}
+            <span className="text-lg font-bold">${product.price.toFixed(2)}</span>
           </div>
         </div>
 
-        {/* Product Details */}
-        <div className="p-4">
-          <h3 className="font-medium text-gray-900 dark:text-gray-100 mb-1 line-clamp-1">{product.name}</h3>
-          <p className="text-gray-500 dark:text-gray-400 text-sm mb-2 line-clamp-2">{product.description}</p>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <span className="font-bold text-green-600">${product.price.toFixed(2)}</span>
-              {product.oldPrice && (
-                <span className="text-gray-500 line-through text-sm">${product.oldPrice.toFixed(2)}</span>
-              )}
-            </div>
-            <span className="text-xs text-gray-500 dark:text-gray-400">{product.category}</span>
-          </div>
-        </div>
+        <Button 
+          onClick={handleAddToCart}
+          disabled={!user}
+          className="mt-2 w-full"
+        >
+          Add to Cart
+        </Button>
       </div>
-    </Link>
+    </div>
   )
 }
-
