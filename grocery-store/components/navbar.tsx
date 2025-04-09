@@ -122,7 +122,7 @@ export default function Navbar() {
                     <Link href="/profile">Profile</Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
-                    <Link href="/orders">My Orders</Link>
+                    <Link href="/myorders">My Orders</Link>
                   </DropdownMenuItem>
                   {user.role === "admin" && (
                     <DropdownMenuItem asChild>

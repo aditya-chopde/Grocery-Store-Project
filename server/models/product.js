@@ -12,5 +12,5 @@ const productSchema = new mongoose.Schema({
   featured: Boolean,
 }, { timestamps: true });
 
-const Product = mongoose.model("product", productSchema);
+const Product = mongoose.model("Product", productSchema); // Uppercase "P"
 module.exports = Product;

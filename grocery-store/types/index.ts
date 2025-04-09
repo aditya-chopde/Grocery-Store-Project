@@ -24,3 +24,32 @@ export interface Category {
   name: string
   image: string
 }
+
+// Order types
+export interface OrderItem {
+  productId: Product
+  quantity: number
+  price: number
+  status: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled'
+}
+
+export interface ShippingAddress {
+  firstName: string
+  lastName: string
+  address: string
+  city: string
+  state: string
+  zipCode: string
+}
+
+export interface Order {
+  _id: string
+  email: string
+  products: OrderItem[]
+  totalPrice: number
+  shippingAddress: ShippingAddress
+  paymentMethod: string
+  status: string
+  createdAt: string
+  updatedAt: string
+}
