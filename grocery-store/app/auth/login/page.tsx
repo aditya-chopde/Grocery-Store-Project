@@ -86,7 +86,7 @@ export default function LoginPage() {
     const endPoint =
       role === "user" ? "/api/auth/user/login" : "/api/auth/shop/login";
 
-    try {
+    // try {
       // Define response interfaces
       interface UserResponse {
         user: {
@@ -104,23 +104,30 @@ export default function LoginPage() {
 
       type LoginResponse = UserResponse | ShopResponse;
 
-      const response = await apiClient.post<LoginResponse>(endPoint, payload);
-      const res = response.data;
+      const response = await apiClient.post(endPoint, payload);
+      const data = response.data;
+      console.log(data)
+      
+      // Handle both possible response formats
+      const userData = data.user || data;
+      const shopData = data.shop || data;
       
       if (role === "user") {
-        const userRes = res as UserResponse;
-        if (!userRes.user) throw new Error("Invalid user response format");
+        if (!userData.email) {
+          throw new Error("Invalid login response - missing email");
+        }
         login({
-          email: userRes.user.email,
-          name: userRes.user.name,
+          email: userData.email,
+          name: userData.name || "User",
           role: "user"
         });
       } else {
-        const shopRes = res as ShopResponse;
-        if (!shopRes.shop) throw new Error("Invalid shop response format");
+        if (!shopData.email) {
+          throw new Error("Invalid login response - missing email");
+        }
         login({
-          email: shopRes.shop.email,
-          name: shopRes.shop.shopName,
+          email: shopData.email,
+          name: shopData.shopName || shopData.name || "Shop Owner",
           role: "admin"
         });
       }
@@ -129,9 +136,9 @@ export default function LoginPage() {
         description: "Welcome back to Fresh Mart!",
       });
       router.push(role === "user" ? "/" : "/admin");
-    } catch (error) {
-      alert(error);
-    }
+    // } catch (error) {
+    //   alert(error);
+    // }
 
     // Mock credentials check (in a real app, this would be handled by the backend)
     // if (email === "user@example.com" && password === "password") {

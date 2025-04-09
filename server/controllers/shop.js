@@ -32,9 +32,11 @@ exports.signup = async (req, res) => {
     const token = jwt.sign({ shopId: shop._id }, secret, { expiresIn: '1h' });
 
     res.status(201).json({
-      message: 'Shop registered successfully',
-      shopId: shop._id,
-      token,
+      data: {
+        message: 'Shop registered successfully',
+        shopId: shop._id,
+        token,
+      }
     });
   } catch (err) {
     console.error(err);
@@ -62,10 +64,12 @@ exports.login = async (req, res) => {
     });
 
     res.status(200).json({
-      message: "Login successful",
-      shopId: shop._id,
-      shop,
-      token,
+      data: {
+        message: "Login successful",
+        shopId: shop._id,
+        shop,
+        token,
+      }
     });
   } catch (err) {
     res.status(500).json({ message: "Server error", error: err.message });
