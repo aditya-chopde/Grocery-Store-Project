@@ -1,3 +1,4 @@
+const { default: mongoose } = require('mongoose');
 const MyOrders = require('../models/myOrders');
 const Product = require('../models/product');
 
@@ -52,12 +53,21 @@ exports.createOrder = async (req, res) => {
     // Save order
     const savedOrder = await order.save();
 
-    // Update product stocks
+    // Update product stocks with individual operations
     for (const item of products) {
-      await Product.findByIdAndUpdate(
-        item.productId,
-        { $inc: { stock: -item.quantity } }
-      );
+      const product = await Product.findById(item.productId);
+      if (!product) {
+        throw new Error(`Product not found: ${item.productId}`);
+      }
+      
+      // Verify sufficient stock before deducting
+      if (product.stock < item.quantity) {
+        throw new Error(`Insufficient stock for ${product.name}`);
+      }
+
+      // Deduct stock
+      product.stock -= item.quantity;
+      await product.save();
     }
 
     res.status(201).json({

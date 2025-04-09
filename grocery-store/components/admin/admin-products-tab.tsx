@@ -47,6 +47,7 @@ interface Product {
   name: string;
   description: string;
   price: number;
+  stock: number;
   category: string;
   shopName: string;
   image?: string;
@@ -83,6 +84,7 @@ export default function AdminProductsTab() {
     name: "",
     description: "",
     price: 0,
+    stock: 0,
     category: "",
     image: "",
   });
@@ -123,6 +125,7 @@ export default function AdminProductsTab() {
     setEditFormData({
       name: product.name,
       price: product.price,
+      stock: product.stock,
       category: product.category,
       description: product.description,
       image: product.image || ''
@@ -314,6 +317,24 @@ export default function AdminProductsTab() {
                   />
                 </div>
                 <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="stock" className="text-right">
+                    Stock Quantity
+                  </Label>
+                  <Input
+                    id="stock"
+                    type="number"
+                    min="0"
+                    value={newProduct.stock}
+                    onChange={(e) =>
+                      setNewProduct({
+                        ...newProduct,
+                        stock: Number.parseInt(e.target.value),
+                      })
+                    }
+                    className="col-span-3"
+                  />
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
                   <Label htmlFor="category" className="text-right">
                     Category
                   </Label>
@@ -395,6 +416,7 @@ export default function AdminProductsTab() {
               <TableHead>Name</TableHead>
               <TableHead>Category</TableHead>
               <TableHead className="text-right">Price</TableHead>
+              <TableHead className="text-right">Stock</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
@@ -414,6 +436,9 @@ export default function AdminProductsTab() {
                 <TableCell>{product.category}</TableCell>
                 <TableCell className="text-right">
                   ${product.price.toFixed(2)}
+                </TableCell>
+                <TableCell className="text-right">
+                  {product.stock}
                 </TableCell>
                 <TableCell className="text-right">
                   <DropdownMenu>
@@ -458,7 +483,7 @@ export default function AdminProductsTab() {
             ))}
             {filteredProducts.length === 0 && (
               <TableRow>
-                <TableCell colSpan={5} className="text-center py-8">
+                <TableCell colSpan={6} className="text-center py-8">
                   No products found. Try adjusting your search.
                 </TableCell>
               </TableRow>
@@ -498,6 +523,19 @@ export default function AdminProductsTab() {
                   type="number"
                   value={editFormData.price}
                   onChange={(e) => setEditFormData({...editFormData, price: Number(e.target.value)})}
+                  className="col-span-3"
+                />
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="edit-stock" className="text-right">
+                  Stock
+                </Label>
+                <Input
+                  id="edit-stock"
+                  type="number"
+                  min="0"
+                  value={editFormData.stock}
+                  onChange={(e) => setEditFormData({...editFormData, stock: Number(e.target.value)})}
                   className="col-span-3"
                 />
               </div>

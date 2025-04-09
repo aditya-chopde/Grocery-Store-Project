@@ -13,6 +13,7 @@ interface ProductCardProps {
     name: string
     description: string
     price: number
+    stock: number
     oldPrice?: number
     category: string
     image: string
@@ -73,15 +74,25 @@ export default function ProductCard({ product }: ProductCardProps) {
               </span>
             )}
             <span className="text-lg font-bold">${product.price.toFixed(2)}</span>
+            <span className={`text-xs ${product.stock > 0 ? 'text-green-600' : 'text-red-600'}`}>
+              {product.stock > 0 ? `${product.stock} in stock` : 'Out of stock'}
+            </span>
           </div>
         </div>
 
         <Button 
-          onClick={handleAddToCart}
-          disabled={!user}
+          onClick={(e) => {
+            if (product.stock <= 0) {
+              e.preventDefault()
+              alert('This product is out of stock')
+              return
+            }
+            handleAddToCart()
+          }}
+          disabled={!user || product.stock <= 0}
           className="mt-2 w-full"
         >
-          Add to Cart
+          {product.stock > 0 ? 'Add to Cart' : 'Out of Stock'}
         </Button>
       </div>
     </div>
