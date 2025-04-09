@@ -41,12 +41,6 @@ export default function ProductCard({ product }: ProductCardProps) {
 
   return (
     <div className="group relative flex flex-col gap-4 rounded-lg border p-4 shadow-sm transition-all hover:shadow-md">
-      {product.featured && (
-        <div className="absolute right-2 top-2 rounded-full bg-green-600 px-2 py-1 text-xs font-medium text-white">
-          Featured
-        </div>
-      )}
-      
       <Link href={`/products/${product._id}`} className="relative aspect-square overflow-hidden rounded-lg">
         <Image
           src={product.image || '/placeholder.svg'}

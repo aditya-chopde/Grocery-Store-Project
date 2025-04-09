@@ -27,11 +27,13 @@ const productRoutes = require('./routes/product');
 const categoryRoutes = require('./routes/categories');
 const authRoutes = require('./routes/auth');
 const cartRoutes = require('./routes/cart');
+const orderRoutes = require('./routes/myOrders');
 
 app.use('/api/products', productRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/cart', cartRoutes);
+app.use('/api/orders', orderRoutes);
 
 // ✅ Connect to MongoDB
 connectDb("mongodb://localhost:27017/grocery-store").then(() => {
