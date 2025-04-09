@@ -33,7 +33,7 @@ export default function ProductCard({ product }: ProductCardProps) {
   }
 
   return (
-    <Link href={`/products/${product.id}`}>
+    <Link href={`/products/${product._id}`}>
       <div
         className="group relative bg-white dark:bg-gray-800 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700 transition-all duration-300 hover:shadow-md"
         onMouseEnter={() => setIsHovered(true)}
@@ -70,10 +70,6 @@ export default function ProductCard({ product }: ProductCardProps) {
             >
               <ShoppingCart className="h-4 w-4 mr-1" />
               Add to Cart
-            </Button>
-            <Button variant="ghost" size="icon" className="text-white hover:text-white hover:bg-black/50">
-              <Heart className="h-4 w-4" />
-              <span className="sr-only">Add to Wishlist</span>
             </Button>
           </div>
         </div>

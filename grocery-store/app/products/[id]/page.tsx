@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Image from "next/image"
 import { useParams, useRouter } from "next/navigation"
 import { Minus, Plus, ShoppingCart, Heart } from "lucide-react"
@@ -10,8 +10,9 @@ import { Card } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useToast } from "@/components/ui/use-toast"
 import { useCart } from "@/context/cart-context"
-import { products } from "@/data/products"
 import RelatedProducts from "@/components/related-products"
+import apiClient from "@/lib/api-client"
+import { Product } from "@/types"
 
 export default function ProductDetailPage() {
   const { id } = useParams()
@@ -19,9 +20,33 @@ export default function ProductDetailPage() {
   const { addToCart } = useCart()
   const { toast } = useToast()
   const [quantity, setQuantity] = useState(1)
+  const [product, setProduct] = useState<Product | null>(null)
+  const [loading, setLoading] = useState(true)
 
-  // Find the product by ID
-  const product = products.find((p) => p.id === id)
+  // Fetch the product by ID
+  useEffect(() => {
+    const getSingleProduct = async () => {
+      try {
+        const response = await apiClient.get(`/api/products/single/${id}`)
+        setProduct(response.data)
+      } catch (error) {
+        console.error("Error fetching product:", error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    getSingleProduct()
+  }, [id])
+
+  // Show loading state
+  if (loading) {
+    return (
+      <div className="container mx-auto px-4 py-16 text-center">
+        <h1 className="text-2xl font-bold mb-4">Loading product...</h1>
+      </div>
+    )
+  }
 
   // Handle if product not found
   if (!product) {
@@ -98,10 +123,6 @@ export default function ProductDetailPage() {
               <ShoppingCart className="mr-2 h-5 w-5" />
               Add to Cart
             </Button>
-            <Button variant="outline" className="flex-1">
-              <Heart className="mr-2 h-5 w-5" />
-              Add to Wishlist
-            </Button>
           </div>
 
           {/* Product Info */}
@@ -113,10 +134,6 @@ export default function ProductDetailPage() {
             <div className="flex items-center justify-between mb-2">
               <span className="font-medium">Availability:</span>
               <span className="text-green-600">In Stock</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="font-medium">SKU:</span>
-              <span>{product.id}</span>
             </div>
           </Card>
         </div>
@@ -189,9 +206,8 @@ export default function ProductDetailPage() {
       {/* Related Products */}
       <section>
         <h2 className="text-2xl font-bold mb-6">You May Also Like</h2>
-        <RelatedProducts currentProductId={product.id} category={product.category} />
+        <RelatedProducts currentProductId={product._id} category={product.category} />
       </section>
     </div>
   )
 }
-

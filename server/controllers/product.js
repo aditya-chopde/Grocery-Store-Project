@@ -19,6 +19,17 @@ exports.getAllProducts = async (req, res, next) => {
   }
 } 
 
+exports.getSingleProduct = async (req, res, next) => {
+  try {
+    const product = await Product.findById(req.params.id);
+    if (!product) return res.status(404).json({ message: "Product not found" });
+    res.json({data: product});
+  }
+  catch (err) {
+    next(err);
+  }
+}
+
 exports.addProduct = async (req, res, next) => {
   try {
     const newProduct = new Product(req.body);

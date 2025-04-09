@@ -5,11 +5,13 @@ import { ChevronLeft, ChevronRight } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import ProductCard from "@/components/product-card"
-import { products } from "@/data/products"
+import apiClient from "@/lib/api-client"
+import { Product } from "@/types"
 
 export default function FeaturedProducts() {
   const [currentPage, setCurrentPage] = useState(0)
   const [itemsPerPage, setItemsPerPage] = useState(4)
+  const [products, setProducts] = useState<Product[]>([])
 
   // Get featured products
   const featuredProducts = products.filter((product) => product.featured).slice(0, 8)
@@ -19,6 +21,16 @@ export default function FeaturedProducts() {
 
   // Get current products
   const currentProducts = featuredProducts.slice(currentPage * itemsPerPage, (currentPage + 1) * itemsPerPage)
+
+  const fetchData = async () => { 
+    const { data } = await apiClient.get<Product[]>("/api/products")
+    setProducts(data)
+    console.log(data)
+  }
+
+  useEffect(() => {
+    fetchData()
+  }, [])
 
   // Handle window resize to adjust items per page
   useEffect(() => {
@@ -52,7 +64,7 @@ export default function FeaturedProducts() {
     <div className="relative">
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         {currentProducts.map((product) => (
-          <ProductCard key={product.id} product={product} />
+          <ProductCard key={product._id} product={product} />
         ))}
       </div>
 

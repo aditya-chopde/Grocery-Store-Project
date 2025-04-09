@@ -3,6 +3,7 @@ const router = express.Router();
 const product = require("../controllers/product");
 
 router.get("/:shopname", product.getShopProducts);
+router.get("/single/:id", product.getSingleProduct);
 router.get("/", product.getAllProducts);
 router.post("/add", product.addProduct);
 router.put("/update/:id", product.updateProduct);

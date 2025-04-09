@@ -14,6 +14,7 @@ import { products } from "@/data/products"
 import { categories } from "@/data/categories"
 import Pagination from "@/components/pagination"
 import { useProducts } from "@/context/product-context"
+import apiClient from "@/lib/api-client"
 
 export default function ProductsPage() {
   // const [filteredProducts, setFilteredProducts] = useState<Product[]>(products)
@@ -21,7 +22,7 @@ export default function ProductsPage() {
   const [selectedCategories, setSelectedCategories] = useState<string[]>([])
   const [priceRange, setPriceRange] = useState([0, 100])
   const [currentPage, setCurrentPage] = useState(1)
-  const {products} = useProducts()
+  const [products, setProducts] = useState<Product[]>([])
   const productsPerPage = 12
 
   // Filter products based on search, categories, and price
@@ -61,6 +62,15 @@ export default function ProductsPage() {
       prev.includes(category) ? prev.filter((c) => c !== category) : [...prev, category],
     )
   }
+
+  const fetchData = async () => { 
+    const { data } = await apiClient.get<Product[]>("/api/products")
+    setProducts(data)
+  }
+
+  useEffect(() => {
+    fetchData()
+  }, [])
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -140,7 +150,7 @@ export default function ProductsPage() {
       {/* Product Grid */}
       {currentProducts.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-8">
-          {currentProducts.map((product) => (
+          {currentProducts.map((product: Product) => (
             <ProductCard key={product._id} product={product} />
           ))}
         </div>
