@@ -27,6 +27,7 @@ export default function CheckoutPage() {
   const data = localStorage.getItem("user");
   const user = JSON.parse(data || "");
   const email = user.email;
+  const [orderError, setOrderError] = useState<string | null>(null);
 
   // Calculate totals
   const subtotal = cart.reduce(
@@ -43,36 +44,65 @@ export default function CheckoutPage() {
     setIsSubmitting(true);
 
     try {
-      await apiClient.post("/api/orders", {
-        email,
-        products: cart.map(item => ({
-          productId: item.product._id,
-          quantity: item.quantity,
-          price: item.product.price,
-          status: 'pending' // Initialize status for each item
-        })),
-        totalPrice: total,
-        shippingAddress: {
-          firstName: (e.currentTarget as HTMLFormElement).firstName.value,
-          lastName: (e.currentTarget as HTMLFormElement).lastName.value,
-          address: (e.currentTarget as HTMLFormElement).address.value,
-          city: (e.currentTarget as HTMLFormElement).city.value,
-          state: (e.currentTarget as HTMLFormElement).state.value,
-          zipCode: (e.currentTarget as HTMLFormElement).zipCode.value
-        },
-        paymentMethod: 'card' // Default for now
-      }).then((res)=>{
-        console.log(res)
-      });
+      await apiClient
+        .post("/api/orders", {
+          email,
+          products: cart.map((item) => ({
+            productId: item.product._id,
+            quantity: item.quantity,
+            price: item.product.price,
+            status: "pending", // Initialize status for each item
+          })),
+          totalPrice: total,
+          shippingAddress: {
+            firstName: (e.currentTarget as HTMLFormElement).firstName.value,
+            lastName: (e.currentTarget as HTMLFormElement).lastName.value,
+            address: (e.currentTarget as HTMLFormElement).address.value,
+            city: (e.currentTarget as HTMLFormElement).city.value,
+            state: (e.currentTarget as HTMLFormElement).state.value,
+            zipCode: (e.currentTarget as HTMLFormElement).zipCode.value,
+          },
+          paymentMethod: "card", // Default for now
+        })
+        .then((res) => {
+          console.log(res);
+        });
 
       await clearCart();
       router.push("/checkout/success");
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "An error occurred while processing your order",
-        variant: "destructive"
-      });
+    } catch (error: any) {
+      if (error.response?.data?.message?.includes("insufficient stock")) {
+        const outOfStockItems = error.response.data.outOfStockItems || [];
+        toast({
+          title: "Insufficient Stock",
+          description: (
+            <div className="space-y-2">
+              <p>
+                Some items in your cart are no longer available in the requested
+                quantities:
+              </p>
+              <ul className="list-disc pl-5">
+                {outOfStockItems.map((item: any) => (
+                  <li key={item.productId}>
+                    {item.productName} - Only {item.availableStock} available
+                  </li>
+                ))}
+              </ul>
+              <p>Please adjust your quantities and try again.</p>
+            </div>
+          ),
+          variant: "destructive",
+          duration: 10000,
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: "An error occurred while processing your order",
+          variant: "destructive",
+        });
+      }
+
+      setOrderError(`Order submission error: ${error.message}`);
       console.error("Order submission error:", error);
     } finally {
       setIsSubmitting(false);
@@ -260,6 +290,11 @@ export default function CheckoutPage() {
                 : `Complete Order • $${total.toFixed(2)}`}
             </Button>
           </form>
+          {orderError && (
+            <div className="mb-6 rounded-md my-3 bg-red-100 border border-red-400 text-red-700 px-4 py-3">
+              {orderError}
+            </div>
+          )}
         </div>
 
         {/* Order Summary */}
