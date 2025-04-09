@@ -140,6 +140,7 @@ export default function AdminOrdersTab() {
   };
 
   // Handle update item status
+  // Handle update item status
   const handleUpdateItemStatus = async (
     orderId: string,
     productId: string,
@@ -292,7 +293,7 @@ export default function AdminOrdersTab() {
       {/* View Order Dialog */}
       {selectedOrder && (
         <Dialog open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen}>
-          <DialogContent className="sm:max-w-[625px]">
+          <DialogContent className="sm:max-w-[600px]">
             <DialogHeader>
               <DialogTitle>
                 Order Details - {selectedOrder._id.substring(0, 8)}...
@@ -414,7 +415,7 @@ export default function AdminOrdersTab() {
                 </div>
               </div>
 
-              {/* <div>
+              <div>
                 <h3 className="text-sm font-medium text-gray-500 mb-2">
                   Update Status
                 </h3>
@@ -439,7 +440,7 @@ export default function AdminOrdersTab() {
                     Update
                   </Button>
                 </div>
-              </div> */}
+              </div>
             </div>
           </DialogContent>
         </Dialog>

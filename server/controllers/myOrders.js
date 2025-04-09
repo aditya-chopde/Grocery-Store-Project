@@ -169,10 +169,21 @@ exports.updateItemStatus = async (req, res) => {
     const { orderId, productId } = req.params;
     const { status } = req.body;
 
+    // Validate required fields
     if (!orderId || !productId || !status) {
       return res.status(400).json({
         success: false,
         message: 'Order ID, Product ID and status are required'
+      });
+    }
+
+    // Validate status value
+    const validStatuses = ['pending', 'processing', 'shipped', 'delivered', 'cancelled'];
+    if (!validStatuses.includes(status)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid status value',
+        validStatuses
       });
     }
 
@@ -184,7 +195,7 @@ exports.updateItemStatus = async (req, res) => {
       });
     }
 
-    // Find and update the specific item
+    // Find the specific item
     const itemIndex = order.products.findIndex(
       item => item.productId.toString() === productId
     );
@@ -196,13 +207,45 @@ exports.updateItemStatus = async (req, res) => {
       });
     }
 
+    // Check status transition validity
+    const currentStatus = order.products[itemIndex].status;
+    const validTransitions = {
+      pending: ['processing', 'cancelled'],
+      processing: ['shipped', 'cancelled'],
+      shipped: ['delivered'],
+      delivered: [],
+      cancelled: []
+    };
+
+    if (!validTransitions[currentStatus].includes(status)) {
+      return res.status(400).json({
+        success: false,
+        message: `Invalid status transition from ${currentStatus} to ${status}`,
+        validTransitions: validTransitions[currentStatus]
+      });
+    }
+
+    // Update status
     order.products[itemIndex].status = status;
-    await order.save();
+    const updatedOrder = await order.save();
+
+    // If all items are delivered, mark order as delivered
+    if (status === 'delivered') {
+      const allDelivered = updatedOrder.products.every(
+        item => item.status === 'delivered'
+      );
+      if (allDelivered) {
+        updatedOrder.status = 'delivered';
+        await updatedOrder.save();
+      }
+    }
 
     res.status(200).json({
-      success: true,
-      message: 'Item status updated',
-      order
+      data: {
+        success: true,
+        message: 'Item status updated',
+        order
+      }
     });
 
   } catch (error) {
