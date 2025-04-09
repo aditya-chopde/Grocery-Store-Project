@@ -11,85 +11,76 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge"
 import { useToast } from "@/components/ui/use-toast"
 
-// Mock orders data
-const orders = [
-  {
-    id: "ORD-001",
-    customer: "John Doe",
-    email: "john@example.com",
-    date: "2023-06-15",
-    total: 78.99,
-    status: "completed",
-    items: [
-      { id: "1", name: "Organic Apples", price: 4.99, quantity: 2 },
-      { id: "2", name: "Whole Grain Bread", price: 3.49, quantity: 1 },
-      { id: "3", name: "Free Range Eggs", price: 5.99, quantity: 1 },
-    ],
-  },
-  {
-    id: "ORD-002",
-    customer: "Jane Smith",
-    email: "jane@example.com",
-    date: "2023-06-14",
-    total: 45.5,
-    status: "processing",
-    items: [
-      { id: "4", name: "Organic Milk", price: 3.99, quantity: 2 },
-      { id: "5", name: "Fresh Strawberries", price: 6.99, quantity: 1 },
-    ],
-  },
-  {
-    id: "ORD-003",
-    customer: "Robert Johnson",
-    email: "robert@example.com",
-    date: "2023-06-13",
-    total: 124.75,
-    status: "shipped",
-    items: [
-      { id: "6", name: "Grass-Fed Beef", price: 15.99, quantity: 2 },
-      { id: "7", name: "Organic Spinach", price: 3.99, quantity: 1 },
-      { id: "8", name: "Sourdough Bread", price: 4.99, quantity: 1 },
-    ],
-  },
-  {
-    id: "ORD-004",
-    customer: "Emily Davis",
-    email: "emily@example.com",
-    date: "2023-06-12",
-    total: 67.25,
-    status: "cancelled",
-    items: [
-      { id: "9", name: "Avocados", price: 6.99, quantity: 3 },
-      { id: "10", name: "Organic Chicken", price: 12.99, quantity: 1 },
-    ],
-  },
-  {
-    id: "ORD-005",
-    customer: "Michael Wilson",
-    email: "michael@example.com",
-    date: "2023-06-11",
-    total: 89.99,
-    status: "completed",
-    items: [
-      { id: "11", name: "Wild Salmon", price: 18.99, quantity: 1 },
-      { id: "12", name: "Organic Broccoli", price: 3.99, quantity: 2 },
-      { id: "13", name: "Almond Milk", price: 4.99, quantity: 1 },
-    ],
-  },
-]
+import { useEffect } from "react"
+import { useAuth } from "@/context/auth-context"
+import apiClient from "@/lib/api-client"
+
+interface Order {
+  _id: string
+  email: string
+  products: {
+    productId: {
+      _id: string
+      name: string
+      price: number
+      shopName: string
+    }
+    quantity: number
+    status: string
+  }[]
+  totalPrice: number
+  createdAt: string
+  status: string
+  shops: string[]
+}
 
 export default function AdminOrdersTab() {
+  const { user } = useAuth()
+  const [orders, setOrders] = useState<Order[]>([])
+  const [loading, setLoading] = useState(true)
   const { toast } = useToast()
   const [searchQuery, setSearchQuery] = useState("")
   const [statusFilter, setStatusFilter] = useState("all")
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false)
-  const [selectedOrder, setSelectedOrder] = useState<(typeof orders)[0] | null>(null)
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null)
+
+  useEffect(() => {
+    const fetchOrders = async () => {
+      // try {
+        // let url = '/api/orders'
+        // if (user?.role === 'shop') {
+          const dataUser = localStorage.getItem('user');
+          const user = JSON.parse(dataUser || '{}');
+          const shopName = user.name;
+          console.log(user)
+          // For shop users, get their orders using the shop-specific endpoint
+          const response = await apiClient.get(`/api/orders/shop/${shopName}`)
+          console.log(response.data.orders)
+          setOrders(response.data.orders || [])
+        // } else {
+          // For admins, get all orders
+          // const { data } = await apiClient.get(url)
+          // setOrders(data.orders || data.data?.orders || [])
+        // }
+      // } catch (error: any) {
+      //   console.error('Error fetching orders:', error)
+      //   toast({
+      //     title: "Error",
+      //     description: error.response?.data?.message || "Failed to fetch orders",
+      //     variant: "destructive"
+      //   })
+      // } finally {
+        setLoading(false)
+      // }
+    }
+
+    fetchOrders()
+  }, [user])
 
   // Filter orders based on search query and status
   const filteredOrders = orders.filter((order) => {
     const matchesSearch =
-      order.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      order.customer.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      order._id.toLowerCase().includes(searchQuery.toLowerCase()) ||
       order.email.toLowerCase().includes(searchQuery.toLowerCase())
 
     const matchesStatus = statusFilter === "all" || order.status === statusFilter
@@ -98,33 +89,75 @@ export default function AdminOrdersTab() {
   })
 
   // Handle view order details
-  const handleViewOrder = (order: (typeof orders)[0]) => {
+  const handleViewOrder = (order: Order) => {
     setSelectedOrder(order)
     setIsViewDialogOpen(true)
   }
 
   // Handle update order status
-  const handleUpdateStatus = (orderId: string, newStatus: string) => {
-    toast({
-      title: "Order status updated",
-      description: `Order ${orderId} status changed to ${newStatus}`,
-    })
-    setIsViewDialogOpen(false)
+  const handleUpdateStatus = async (orderId: string, newStatus: string) => {
+    try {
+      const { data: updatedOrder } = await apiClient.put(`/api/orders/${orderId}/status`, { status: newStatus })
+      
+      setOrders(orders.map(order => 
+        order._id === orderId ? updatedOrder.order : order
+      ))
+      setIsViewDialogOpen(false)
+    } catch (error: any) {
+      console.error('Error updating status:', error)
+      toast({
+        title: "Error",
+        description: error.response?.data?.message || "Failed to update order status",
+        variant: "destructive"
+      })
+    }
   }
+
+  // Handle update item status
+  const handleUpdateItemStatus = async (orderId: string, productId: string, newStatus: string) => {
+    try {
+      const { data: updatedOrder } = await apiClient.put(`/api/orders/${orderId}/items/${productId}/status`, { status: newStatus })
+      
+      setOrders(orders.map(order => 
+        order._id === orderId ? updatedOrder.order : order
+      ))
+    } catch (error: any) {
+      console.error('Error updating item status:', error)
+      toast({
+        title: "Error",
+        description: error.response?.data?.message || "Failed to update item status",
+        variant: "destructive"
+      })
+    }
+  }
+
+  if (loading) return <div className="text-center py-8">Loading orders...</div>
 
   // Get badge color based on status
   const getStatusBadge = (status: string) => {
-    switch (status) {
+    // Normalize status to lowercase for comparison
+    const normalizedStatus = status.toLowerCase()
+    
+    switch (normalizedStatus) {
       case "completed":
+      case "complete":
         return <Badge className="bg-green-500">Completed</Badge>
       case "processing":
+      case "process":
         return <Badge className="bg-blue-500">Processing</Badge>
       case "shipped":
+      case "ship":
         return <Badge className="bg-yellow-500">Shipped</Badge>
       case "cancelled":
+      case "cancel":
         return <Badge className="bg-red-500">Cancelled</Badge>
+      case "pending":
+        return <Badge className="bg-gray-500">Pending</Badge>
+      case "delivered":
+        return <Badge className="bg-purple-500">Delivered</Badge>
       default:
-        return <Badge>Unknown</Badge>
+        console.warn('Unknown order status:', status)
+        return <Badge className="bg-gray-500">{status}</Badge>
     }
   }
 
@@ -172,17 +205,14 @@ export default function AdminOrdersTab() {
           </TableHeader>
           <TableBody>
             {filteredOrders.map((order) => (
-              <TableRow key={order.id}>
-                <TableCell className="font-medium">{order.id}</TableCell>
+              <TableRow key={order._id}>
+                <TableCell className="font-medium">{order._id.substring(0, 8)}...</TableCell>
                 <TableCell>
-                  <div>
-                    <p>{order.customer}</p>
-                    <p className="text-sm text-gray-500">{order.email}</p>
-                  </div>
+                  <p className="text-sm text-gray-500">{order.email}</p>
                 </TableCell>
-                <TableCell>{order.date}</TableCell>
+                <TableCell>{new Date(order.createdAt).toLocaleDateString()}</TableCell>
                 <TableCell>{getStatusBadge(order.status)}</TableCell>
-                <TableCell className="text-right">${order.total.toFixed(2)}</TableCell>
+                <TableCell className="text-right">${order.totalPrice.toFixed(2)}</TableCell>
                 <TableCell className="text-right">
                   <Button variant="ghost" size="sm" onClick={() => handleViewOrder(order)}>
                     <Eye className="mr-2 h-4 w-4" />
@@ -207,23 +237,32 @@ export default function AdminOrdersTab() {
         <Dialog open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen}>
           <DialogContent className="sm:max-w-[600px]">
             <DialogHeader>
-              <DialogTitle>Order Details - {selectedOrder.id}</DialogTitle>
+              <DialogTitle>Order Details - {selectedOrder._id.substring(0, 8)}...</DialogTitle>
               <DialogDescription>View and manage order information.</DialogDescription>
             </DialogHeader>
             <div className="grid gap-6 py-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <h3 className="text-sm font-medium text-gray-500">Customer Information</h3>
-                  <p className="font-medium">{selectedOrder.customer}</p>
                   <p className="text-sm">{selectedOrder.email}</p>
                 </div>
                 <div>
                   <h3 className="text-sm font-medium text-gray-500">Order Information</h3>
-                  <p className="font-medium">Date: {selectedOrder.date}</p>
+                  <p className="font-medium">Date: {new Date(selectedOrder.createdAt).toLocaleString()}</p>
                   <div className="flex items-center gap-2 mt-1">
                     <p className="text-sm">Status:</p>
                     {getStatusBadge(selectedOrder.status)}
                   </div>
+                  {selectedOrder.shops && (
+                    <div className="mt-2">
+                      <p className="text-sm font-medium text-gray-500">Shops:</p>
+                      <div className="flex flex-wrap gap-1 mt-1">
+                        {selectedOrder.shops.map(shop => (
+                          <Badge key={shop} variant="outline">{shop}</Badge>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -234,25 +273,49 @@ export default function AdminOrdersTab() {
                     <TableHeader>
                       <TableRow>
                         <TableHead>Product</TableHead>
+                        <TableHead>Shop</TableHead>
+                        <TableHead>Status</TableHead>
                         <TableHead className="text-right">Price</TableHead>
                         <TableHead className="text-right">Quantity</TableHead>
                         <TableHead className="text-right">Total</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {selectedOrder.items.map((item) => (
-                        <TableRow key={item.id}>
-                          <TableCell>{item.name}</TableCell>
-                          <TableCell className="text-right">${item.price.toFixed(2)}</TableCell>
+                      {selectedOrder.products.map((item) => (
+                        <TableRow key={item.productId._id}>
+                          <TableCell>{item.productId.name}</TableCell>
+                          <TableCell>{item.productId.shopName}</TableCell>
+                          <TableCell>
+                            <Select
+                              value={item.status}
+                              onValueChange={(value) => 
+                                handleUpdateItemStatus(selectedOrder._id, item.productId._id, value)
+                              }
+                            >
+                              <SelectTrigger className="w-[120px]">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="pending">Pending</SelectItem>
+                                <SelectItem value="processing">Processing</SelectItem>
+                                <SelectItem value="shipped">Shipped</SelectItem>
+                                <SelectItem value="delivered">Delivered</SelectItem>
+                                <SelectItem value="cancelled">Cancelled</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </TableCell>
+                          <TableCell className="text-right">${item.productId.price.toFixed(2)}</TableCell>
                           <TableCell className="text-right">{item.quantity}</TableCell>
-                          <TableCell className="text-right">${(item.price * item.quantity).toFixed(2)}</TableCell>
+                          <TableCell className="text-right">
+                            ${(item.productId.price * item.quantity).toFixed(2)}
+                          </TableCell>
                         </TableRow>
                       ))}
                       <TableRow>
-                        <TableCell colSpan={3} className="text-right font-medium">
+                        <TableCell colSpan={5} className="text-right font-medium">
                           Total
                         </TableCell>
-                        <TableCell className="text-right font-bold">${selectedOrder.total.toFixed(2)}</TableCell>
+                        <TableCell className="text-right font-bold">${selectedOrder.totalPrice.toFixed(2)}</TableCell>
                       </TableRow>
                     </TableBody>
                   </Table>
@@ -274,7 +337,7 @@ export default function AdminOrdersTab() {
                     </SelectContent>
                   </Select>
                   <Button
-                    onClick={() => handleUpdateStatus(selectedOrder.id, "completed")}
+                    onClick={() => handleUpdateStatus(selectedOrder._id, "completed")}
                     className="bg-green-600 hover:bg-green-700"
                   >
                     Update

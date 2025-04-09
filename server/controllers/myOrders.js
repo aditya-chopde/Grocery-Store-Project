@@ -30,10 +30,20 @@ exports.createOrder = async (req, res) => {
     // Validate order items
     await validateOrderItems(products);
 
-    // Create new order
+    // Get shop names from products
+    const productDocs = await Product.find({
+      _id: { $in: products.map(p => p.productId) }
+    });
+    const shopNames = [...new Set(productDocs.map(p => p.shopName))];
+
+    // Create new order with shop references
     const order = new MyOrders({
       email,
-      products,
+      products: products.map(p => ({
+        ...p,
+        status: 'pending' // Initialize status
+      })),
+      shops: shopNames,
       totalPrice,
       shippingAddress,
       paymentMethod
@@ -98,6 +108,36 @@ exports.getUserOrders = async (req, res) => {
   }
 };
 
+// Get orders for a specific shop
+exports.getShopOrders = async (req, res) => {
+  try {
+    const { shopName } = req.params;
+    const { status } = req.query;
+
+    const filter = { shops: shopName };
+    if (status) filter['products.status'] = status;
+
+    const orders = await MyOrders.find(filter)
+      .populate('products.productId', 'name price shopName')
+      .sort({ createdAt: -1 });
+
+    res.status(200).json({
+      data: {
+        success: true,
+        count: orders.length,
+        orders
+      }
+    });
+
+  } catch (error) {
+    console.error('Error fetching shop orders:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch shop orders'
+    });
+  }
+};
+
 // Get all orders (admin only)
 exports.getAllOrders = async (req, res) => {
   try {
@@ -148,7 +188,7 @@ exports.updateItemStatus = async (req, res) => {
     const itemIndex = order.products.findIndex(
       item => item.productId.toString() === productId
     );
-    
+
     if (itemIndex === -1) {
       return res.status(404).json({
         success: false,

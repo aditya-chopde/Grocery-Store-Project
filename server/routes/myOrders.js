@@ -7,6 +7,11 @@ const myOrdersController = require('../controllers/myOrders');
 // @access  Private
 router.post('/', myOrdersController.createOrder);
 
+// @route   GET /api/orders/shop/:shopName
+// @desc    Get orders for a specific shop
+// @access  Private/ShopAdmin
+router.get('/shop/:shopName', myOrdersController.getShopOrders);
+
 // @route   GET /api/orders/user/:email
 // @desc    Get orders by user email
 // @access  Private
@@ -26,5 +31,10 @@ router.get('/', myOrdersController.getAllOrders);
 // @desc    Update order status (Admin only)
 // @access  Private/Admin
 router.put('/:orderId/status', myOrdersController.updateOrderStatus);
+
+// @route   PUT /api/orders/:orderId/items/:productId/status
+// @desc    Update item status in an order (ShopAdmin only)
+// @access  Private/ShopAdmin
+router.put('/:orderId/items/:productId/status', myOrdersController.updateItemStatus);
 
 module.exports = router;

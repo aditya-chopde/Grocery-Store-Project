@@ -63,7 +63,11 @@ const myOrdersSchema = new mongoose.Schema({
     trim: true,
     lowercase: true
   },
-  products: [orderItemSchema],
+    products: [orderItemSchema],
+    shops: [{
+      type: String,
+      required: true
+    }],
   totalPrice: { 
     type: Number, 
     required: true,
