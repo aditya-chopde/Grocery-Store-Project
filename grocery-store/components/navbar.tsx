@@ -1,43 +1,43 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import Link from "next/link"
-import { usePathname } from "next/navigation"
-import { Menu, ShoppingCart, Sun, Moon, User, LogOut } from "lucide-react"
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { Menu, ShoppingCart, Sun, Moon, User, LogOut } from "lucide-react";
 
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { useTheme } from "next-themes"
-import { useCart } from "@/context/cart-context"
-import { useAuth } from "@/context/auth-context"
+} from "@/components/ui/dropdown-menu";
+import { useTheme } from "next-themes";
+import { useCart } from "@/context/cart-context";
+import { useAuth } from "@/context/auth-context";
 
 export default function Navbar() {
-  const pathname = usePathname()
-  const { theme, setTheme } = useTheme()
-  const { cart } = useCart()
-  const { user, logout } = useAuth()
-  const [isScrolled, setIsScrolled] = useState(false)
+  const pathname = usePathname();
+  const { theme, setTheme } = useTheme();
+  const { cart } = useCart();
+  const { user, logout } = useAuth();
+  const [isScrolled, setIsScrolled] = useState(false);
 
   // Calculate total items in cart
-  const cartItemCount = cart.reduce((total, item) => total + item.quantity, 0)
+  const cartItemCount = cart.reduce((total, item) => total + item.quantity, 0);
 
   // Handle scroll event to change navbar style
   useEffect(() => {
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 10)
-    }
+      setIsScrolled(window.scrollY > 10);
+    };
 
-    window.addEventListener("scroll", handleScroll)
-    return () => window.removeEventListener("scroll", handleScroll)
-  }, [])
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   // Navigation links
   const navLinks = [
@@ -45,12 +45,14 @@ export default function Navbar() {
     { href: "/products", label: "Products" },
     { href: "/about", label: "About" },
     { href: "/contact", label: "Contact" },
-  ]
+  ];
 
   return (
     <header
       className={`sticky top-0 z-50 w-full transition-all duration-200 ${
-        isScrolled ? "bg-white/80 backdrop-blur-md shadow-sm dark:bg-gray-950/80" : "bg-white dark:bg-gray-950"
+        isScrolled
+          ? "bg-white/80 backdrop-blur-md shadow-sm dark:bg-gray-950/80"
+          : "bg-white dark:bg-gray-950"
       }`}
     >
       <div className="container mx-auto px-4">
@@ -58,30 +60,42 @@ export default function Navbar() {
           {/* Logo */}
           <Link href="/" className="flex items-center">
             <span className="text-xl font-bold text-green-600">
-              Fresh<span className="text-gray-800 dark:text-white">Mart</span>
+              Local<span className="text-gray-800 dark:text-white">Basket</span>
             </span>
           </Link>
 
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center space-x-6">
-            {navLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className={`text-sm font-medium transition-colors hover:text-green-600 ${
-                  pathname === link.href ? "text-green-600" : "text-gray-600 dark:text-gray-300"
-                }`}
-              >
-                {link.label}
-              </Link>
-            ))}
-          </nav>
+          {user?.role === "user" && (
+            <nav className="hidden md:flex items-center space-x-6">
+              {navLinks.map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className={`text-sm font-medium transition-colors hover:text-green-600 ${
+                    pathname === link.href
+                      ? "text-green-600"
+                      : "text-gray-600 dark:text-gray-300"
+                  }`}
+                >
+                  {link.label}
+                </Link>
+              ))}
+            </nav>
+          )}
 
           {/* Actions */}
           <div className="flex items-center space-x-4">
             {/* Theme Toggle */}
-            <Button variant="ghost" size="icon" onClick={() => setTheme(theme === "dark" ? "light" : "dark")}>
-              {theme === "dark" ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+            >
+              {theme === "dark" ? (
+                <Sun className="h-5 w-5" />
+              ) : (
+                <Moon className="h-5 w-5" />
+              )}
               <span className="sr-only">Toggle theme</span>
             </Button>
 
@@ -153,7 +167,8 @@ export default function Navbar() {
               <SheetContent side="right">
                 <Link href="/" className="flex items-center mb-6">
                   <span className="text-xl font-bold text-green-600">
-                    Fresh<span className="text-gray-800 dark:text-white">Mart</span>
+                    Fresh
+                    <span className="text-gray-800 dark:text-white">Mart</span>
                   </span>
                 </Link>
                 <div className="mb-4">
@@ -165,7 +180,9 @@ export default function Navbar() {
                       key={link.href}
                       href={link.href}
                       className={`text-sm font-medium transition-colors hover:text-green-600 ${
-                        pathname === link.href ? "text-green-600" : "text-gray-600 dark:text-gray-300"
+                        pathname === link.href
+                          ? "text-green-600"
+                          : "text-gray-600 dark:text-gray-300"
                       }`}
                     >
                       {link.label}
@@ -173,7 +190,10 @@ export default function Navbar() {
                   ))}
                   {!user && (
                     <>
-                      <Link href="/auth/login" className="text-sm font-medium transition-colors hover:text-green-600">
+                      <Link
+                        href="/auth/login"
+                        className="text-sm font-medium transition-colors hover:text-green-600"
+                      >
                         Sign in
                       </Link>
                       <Link
@@ -185,7 +205,10 @@ export default function Navbar() {
                     </>
                   )}
                   {user && user.role === "admin" && (
-                    <Link href="/admin" className="text-sm font-medium transition-colors hover:text-green-600">
+                    <Link
+                      href="/admin"
+                      className="text-sm font-medium transition-colors hover:text-green-600"
+                    >
                       Admin Dashboard
                     </Link>
                   )}
@@ -196,6 +219,5 @@ export default function Navbar() {
         </div>
       </div>
     </header>
-  )
+  );
 }
-

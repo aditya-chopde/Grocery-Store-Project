@@ -14,7 +14,7 @@ export default function Footer() {
           <div>
             <Link href="/" className="flex items-center mb-4">
               <span className="text-xl font-bold text-green-600">
-                Fresh<span className="text-gray-800 dark:text-white">Mart</span>
+                Local<span className="text-gray-800 dark:text-white">Basket</span>
               </span>
             </Link>
             <p className="text-gray-600 dark:text-gray-400 mb-4">
@@ -102,7 +102,7 @@ export default function Footer() {
             <ul className="space-y-3">
               <li className="flex items-start">
                 <MapPin className="h-5 w-5 text-green-600 mr-2 mt-0.5" />
-                <span className="text-gray-600 dark:text-gray-400">123 Grocery St, Fresh City, FC 12345</span>
+                <span className="text-gray-600 dark:text-gray-400">Plot no. 244, near Gandharva Mahavidyalaya, Bajaj Nagar, Nagpur, Maharashtra 440010</span>
               </li>
               <li className="flex items-center">
                 <Phone className="h-5 w-5 text-green-600 mr-2" />
@@ -110,7 +110,7 @@ export default function Footer() {
               </li>
               <li className="flex items-center">
                 <Mail className="h-5 w-5 text-green-600 mr-2" />
-                <span className="text-gray-600 dark:text-gray-400">support@freshmart.com</span>
+                <span className="text-gray-600 dark:text-gray-400">support@localbasket.com</span>
               </li>
             </ul>
           </div>
