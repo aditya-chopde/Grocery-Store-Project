@@ -27,36 +27,30 @@ export default function ProductsPage() {
   const [error, setError] = useState('');
   const productsPerPage = 12
 
-  // Filter products based on search, categories, and price
-  useEffect(() => {
-    let result = products
-
-    // Filter by search query
-    if (searchQuery) {
-      result = result.filter(
-        (product) =>
-          product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          product.description.toLowerCase().includes(searchQuery.toLowerCase()),
-      )
-    }
-
-    // Filter by categories
-    if (selectedCategories.length > 0) {
-      result = result.filter((product) => selectedCategories.includes(product.category))
-    }
-
-    // Filter by price range
-    result = result.filter((product) => product.price >= priceRange[0] && product.price <= priceRange[1])
-
-    // setFilteredProducts(result)
-    setCurrentPage(1) // Reset to first page when filters change
-  }, [searchQuery, selectedCategories, priceRange])
+  // Get filtered products based on search, categories and price
+  const filteredProducts = products.filter(product => {
+    // Search query filter
+    const matchesSearch = searchQuery 
+      ? product.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+        product.description.toLowerCase().includes(searchQuery.toLowerCase())
+      : true
+    
+    // Category filter
+    const matchesCategory = selectedCategories.length > 0
+      ? selectedCategories.includes(product.category)
+      : true
+      
+    // Price range filter
+    const matchesPrice = product.price >= priceRange[0] && product.price <= priceRange[1]
+    
+    return matchesSearch && matchesCategory && matchesPrice
+  })
 
   // Get current products for pagination
   const indexOfLastProduct = currentPage * productsPerPage
   const indexOfFirstProduct = indexOfLastProduct - productsPerPage
-  const currentProducts = products.slice(indexOfFirstProduct, indexOfLastProduct)
-  const totalPages = Math.ceil(products.length / productsPerPage)
+  const currentProducts = filteredProducts.slice(indexOfFirstProduct, indexOfLastProduct)
+  const totalPages = Math.ceil(filteredProducts.length / productsPerPage)
 
   // Handle category selection
   const handleCategoryChange = (category: string) => {
