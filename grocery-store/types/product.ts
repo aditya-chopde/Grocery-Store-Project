@@ -3,9 +3,15 @@ export interface Product {
   name: string
   description: string
   price: number
+  stock?: number
+  oldPrice?: number
   category: string
   shopName: string
-  image?: string
+  shopLocation?: {
+    latitude: number
+    longitude: number
+  }
+  image: string
   createdAt?: string
   updatedAt?: string
   featured?: boolean

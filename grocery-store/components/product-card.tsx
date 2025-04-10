@@ -8,18 +8,7 @@ import { useAuth } from '../context/auth-context'
 import type { Product } from '../types'
 
 interface ProductCardProps {
-  product: {
-    _id: string
-    name: string
-    description: string
-    price: number
-    stock: number
-    oldPrice?: number
-    category: string
-    image: string
-    featured?: boolean
-    shopName?: string
-  }
+  product: Product
 }
 
 export default function ProductCard({ product }: ProductCardProps) {
@@ -32,6 +21,7 @@ export default function ProductCard({ product }: ProductCardProps) {
       name: product.name,
       description: product.description,
       price: product.price,
+      stock: product.stock,
       oldPrice: product.oldPrice,
       category: product.category,
       image: product.image,
@@ -85,14 +75,14 @@ export default function ProductCard({ product }: ProductCardProps) {
 
         <Button 
           onClick={(e) => {
-            if (product.stock <= 0) {
+            if ((product.stock ?? 0) <= 0) {
               e.preventDefault()
               alert('This product is out of stock')
               return
             }
             handleAddToCart()
           }}
-          disabled={!user || product.stock <= 0}
+          disabled={!user || (product.stock ?? 0) <= 0}
           className="mt-2 w-full"
         >
           {product.stock > 0 ? 'Add to Cart' : 'Out of Stock'}

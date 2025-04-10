@@ -13,6 +13,7 @@ export interface BaseProduct {
 }
 
 export interface Product extends BaseProduct {
+  stock: number
   image: string
   featured: boolean
   shopName: string
