@@ -5,19 +5,36 @@ import { Order } from "@/types";
 import { OrderCard } from "@/components/order-card";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
+import { useAuth } from "@/context/auth-context";
+import Link from "next/link";
 
 export default function MyOrdersPage() {
+  const { isAuthenticated, user } = useAuth();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+
+  if (!isAuthenticated()) {
+    return (
+      <div className="container mx-auto px-4 py-16 text-center">
+        <h1 className="text-2xl font-bold mb-4">
+          Please login to view your orders
+        </h1>
+        <p className="text-gray-500 mb-8">
+          You need to be logged in to access your order history.
+        </p>
+        <Button asChild className="bg-green-600 hover:bg-green-700">
+          <Link href="/auth/login">Login Now</Link>
+        </Button>
+      </div>
+    );
+  }
 
   useEffect(() => {
     const fetchOrders = async () => {
       try {
         setLoading(true);
-        const dataOfUser = localStorage.getItem("user");
-        const user = JSON.parse(dataOfUser || "");
-        const userEmail = user.email;
+        const userEmail = user?.email;
         
         if (!userEmail) {
           throw new Error("User email not found");

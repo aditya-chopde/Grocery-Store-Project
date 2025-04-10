@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Trash2, Minus, Plus, ShoppingBag, LogIn } from "lucide-react";
+import { Trash2, Minus, Plus, ShoppingBag, LogIn, MapPin } from "lucide-react";
 
 // Import from local paths
 import { Button } from "../../components/ui/button";
@@ -19,7 +19,9 @@ export default function CartPage() {
   const { user } = useAuth();
   const [isUpdating, setIsUpdating] = useState(false);
 
-  if (!user) {
+  const { isAuthenticated } = useAuth();
+  
+  if (!isAuthenticated()) {
     return (
       <div className="container mx-auto px-4 py-16 text-center">
         <LogIn className="mx-auto h-16 w-16 text-gray-400 mb-4" />
@@ -30,7 +32,7 @@ export default function CartPage() {
           You need to be logged in to access your shopping cart.
         </p>
         <Button asChild className="bg-green-600 hover:bg-green-700">
-          <Link href="/login">Login Now</Link>
+          <Link href="/auth/login">Login Now</Link>
         </Button>
       </div>
     );
@@ -111,6 +113,10 @@ export default function CartPage() {
                   {/* Product Info */}
                   <div className="flex-1">
                     <h3 className="font-medium">{item.product.name}</h3>
+                    <div className="flex items-center gap-1 text-gray-500 text-sm">
+                      <MapPin className="h-3 w-3" />
+                      <span>{item.product.shopName || "Our Store"}</span>
+                    </div>
                     <p className="text-gray-500 text-sm">
                       {item.product.category}
                     </p>

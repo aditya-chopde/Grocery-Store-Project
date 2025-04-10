@@ -18,15 +18,32 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/components/ui/use-toast";
 import { useCart } from "@/context/cart-context";
 import apiClient from "@/lib/api-client";
+import { useAuth } from "@/context/auth-context";
 
 export default function CheckoutPage() {
   const router = useRouter();
   const { cart, clearCart } = useCart();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const data = localStorage.getItem("user");
-  const user = JSON.parse(data || "");
-  const email = user.email;
+  const { isAuthenticated, user } = useAuth();
+  
+  if (!isAuthenticated()) {
+    return (
+      <div className="container mx-auto px-4 py-16 text-center">
+        <h1 className="text-2xl font-bold mb-4">
+          Please login to checkout
+        </h1>
+        <p className="text-gray-500 mb-8">
+          You need to be logged in to complete your purchase.
+        </p>
+        <Button asChild className="bg-green-600 hover:bg-green-700">
+          <Link href="/auth/login">Login Now</Link>
+        </Button>
+      </div>
+    );
+  }
+
+  const email = user?.email || "";
   const [orderError, setOrderError] = useState<string | null>(null);
 
   // Calculate totals

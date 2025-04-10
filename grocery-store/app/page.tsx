@@ -39,7 +39,7 @@ export default function Home() {
       </section>
 
       {/* Categories Section */}
-      <section className="mb-12">
+      {/* <section className="mb-12">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-bold">Shop by Category</h2>
           <Link href="/products" className="text-green-600 hover:text-green-700 flex items-center text-sm font-medium">
@@ -47,7 +47,7 @@ export default function Home() {
           </Link>
         </div>
         <CategoryList />
-      </section>
+      </section> */}
 
       {/* Featured Products Section */}
       <section className="mb-12">
@@ -66,7 +66,7 @@ export default function Home() {
           <CardContent className="p-0 relative">
             <div className="absolute inset-0 bg-gradient-to-r from-blue-900/70 to-transparent z-10" />
             <Image
-              src="/placeholder.svg?height=300&width=600"
+              src="https://images.unsplash.com/photo-1617347454431-f49d7ff5c3b1?q=80&w=2015&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
               alt="Free delivery on orders over $50"
               width={600}
               height={300}
@@ -127,7 +127,7 @@ export default function Home() {
           </div>
         </div>
         <Image
-          src="/placeholder.svg?height=300&width=300"
+          src="/logo.png?height=300&width=300"
           alt="Mobile app"
           width={300}
           height={300}

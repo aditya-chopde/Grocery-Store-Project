@@ -106,8 +106,11 @@ export default function LoginPage() {
 
       const response = await apiClient.post(endPoint, payload);
       const data = response.data;
-      console.log(data)
       
+      if (!data.token) {
+        throw new Error("Authentication failed - no token received");
+      }
+
       // Handle both possible response formats
       const userData = data.user || data;
       const shopData = data.shop || data;
@@ -119,8 +122,9 @@ export default function LoginPage() {
         login({
           email: userData.email,
           name: userData.name || "User",
-          role: "user"
-        });
+          role: "user",
+          token: data.token
+        }, data.token);
       } else {
         if (!shopData.email) {
           throw new Error("Invalid login response - missing email");
@@ -128,8 +132,9 @@ export default function LoginPage() {
         login({
           email: shopData.email,
           name: shopData.shopName || shopData.name || "Shop Owner",
-          role: "admin"
-        });
+          role: "admin",
+          token: data.token
+        }, data.token);
       }
       toast({
         title: "Login successful",

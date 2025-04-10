@@ -118,9 +118,9 @@ export default function Navbar() {
                     </div>
                   </div>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem asChild>
+                  {/* <DropdownMenuItem asChild>
                     <Link href="/profile">Profile</Link>
-                  </DropdownMenuItem>
+                  </DropdownMenuItem> */}
                   <DropdownMenuItem asChild>
                     <Link href="/myorders">My Orders</Link>
                   </DropdownMenuItem>

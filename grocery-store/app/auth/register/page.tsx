@@ -124,15 +124,25 @@ export default function RegisterPage() {
     try {
       const endpoint = `/api/auth/${role === "user" ? "user" : "shop"}/signup`
       try {
-        const res = await apiClient.post(endpoint, payload)
-        register({ email: formData.email, name: formData.name, role })
+        const response = await apiClient.post(endpoint, payload)
+        const data = response.data
+        
+        if (!data.token) {
+          throw new Error("Registration failed - no token received")
+        }
+
+        register({
+          email: formData.email,
+          name: formData.name,
+          role,
+          token: data.token
+        }, data.token)
+        
         router.push(`${role === "user" ? "/" : "/admin"}`)
         toast({
           title: "Registration successful",
           description: "Your account has been created successfully!",
         })
-        console.log(res)
-        console.log('Registration successful:', res.data.message)
       } catch (error: any) {
         console.log('Registration error:', error.response?.data || error.message)
         throw new Error(error.response?.data?.message || 'Registration failed')

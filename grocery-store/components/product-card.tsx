@@ -1,7 +1,7 @@
 'use client'
 import Image from 'next/image'
 import Link from 'next/link'
-import { Star } from 'lucide-react'
+import { Star, MapPin } from 'lucide-react'
 import { Button } from './ui/button'
 import { useCart } from '../context/cart-context'
 import { useAuth } from '../context/auth-context'
@@ -55,7 +55,10 @@ export default function ProductCard({ product }: ProductCardProps) {
         <div className="flex items-center justify-between">
           <h3 className="text-lg font-medium">{product.name}</h3>
           {product.shopName && (
-            <span className="text-sm text-gray-500">{product.shopName}</span>
+            <div className="flex items-center gap-1 text-sm text-gray-500">
+              <MapPin className="h-3 w-3" />
+              <span>{product.shopName}</span>
+            </div>
           )}
         </div>
 
