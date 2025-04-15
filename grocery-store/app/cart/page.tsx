@@ -121,7 +121,7 @@ export default function CartPage() {
                       {item.product.category}
                     </p>
                     <p className="font-bold text-green-600 mt-1">
-                      ${item.product.price.toFixed(2)}
+                      ₹{item.product.price.toFixed(2)}
                     </p>
                   </div>
 
@@ -195,18 +195,18 @@ export default function CartPage() {
               <div className="space-y-2">
                 <div className="flex justify-between">
                   <span>Subtotal</span>
-                  <span>${subtotal.toFixed(2)}</span>
+                  <span>₹{subtotal.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between">
                   <span>Shipping</span>
-                  <span>${shipping.toFixed(2)}</span>
+                  <span>₹{shipping.toFixed(2)}</span>
                 </div>
 
                 <Separator className="my-2" />
 
                 <div className="flex justify-between font-bold">
                   <span>Total</span>
-                  <span>${total.toFixed(2)}</span>
+                  <span>₹{total.toFixed(2)}</span>
                 </div>
               </div>
             </CardContent>

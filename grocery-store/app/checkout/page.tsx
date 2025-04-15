@@ -220,7 +220,7 @@ export default function CheckoutPage() {
                       </Label>
                     </div>
                     <span>
-                      {shipping === 0 ? "Free" : `$${shipping.toFixed(2)}`}
+                      {shipping === 0 ? "Free" : `₹${shipping.toFixed(2)}`}
                     </span>
                   </div>
                   <div className="flex items-center justify-between border rounded-md p-4 mb-2">
@@ -230,7 +230,7 @@ export default function CheckoutPage() {
                         Express Shipping (1-2 business days)
                       </Label>
                     </div>
-                    <span>$12.99</span>
+                    <span>₹12.99</span>
                   </div>
                 </RadioGroup>
               </CardContent>
@@ -304,7 +304,7 @@ export default function CheckoutPage() {
             >
               {isSubmitting
                 ? "Processing..."
-                : `Complete Order • $${total.toFixed(2)}`}
+                : `Complete Order • ₹${total.toFixed(2)}`}
             </Button>
           </form>
           {orderError && (
@@ -340,7 +340,7 @@ export default function CheckoutPage() {
                       <div className="flex justify-between">
                         <span className="font-medium">{item.product.name}</span>
                         <span>
-                          ${(item.product.price * item.quantity).toFixed(2)}
+                          ₹{(item.product.price * item.quantity).toFixed(2)}
                         </span>
                       </div>
                       <div className="text-sm text-gray-500">
@@ -357,22 +357,22 @@ export default function CheckoutPage() {
               <div className="space-y-2">
                 <div className="flex justify-between">
                   <span className="text-gray-600">Subtotal</span>
-                  <span>${subtotal.toFixed(2)}</span>
+                  <span>₹{subtotal.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Shipping</span>
                   <span>
-                    {shipping === 0 ? "Free" : `$${shipping.toFixed(2)}`}
+                    {shipping === 0 ? "Free" : `₹${shipping.toFixed(2)}`}
                   </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Tax</span>
-                  <span>${tax.toFixed(2)}</span>
+                  <span>₹{tax.toFixed(2)}</span>
                 </div>
                 <Separator />
                 <div className="flex justify-between font-bold text-lg">
                   <span>Total</span>
-                  <span>${total.toFixed(2)}</span>
+                  <span>₹{total.toFixed(2)}</span>
                 </div>
               </div>
 
@@ -381,7 +381,7 @@ export default function CheckoutPage() {
                 <Check className="h-5 w-5 text-green-600 mt-0.5" />
                 <div>
                   <p className="text-sm font-medium">
-                    Free shipping on orders over $50
+                    Free shipping on orders over ₹50
                   </p>
                   <p className="text-xs text-gray-600">
                     Your order qualifies for free shipping!

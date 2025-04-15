@@ -63,10 +63,10 @@ export default function ProductCard({ product }: ProductCardProps) {
           <div className="flex flex-col items-end">
             {product.oldPrice && (
               <span className="text-sm text-gray-400 line-through">
-                ${product.oldPrice.toFixed(2)}
+                ₹{product.oldPrice.toFixed(2)}
               </span>
             )}
-            <span className="text-lg font-bold">${product.price.toFixed(2)}</span>
+            <span className="text-lg font-bold">₹{product.price.toFixed(2)}</span>
             <span className={`text-xs ${product.stock > 0 ? 'text-green-600' : 'text-red-600'}`}>
               {product.stock > 0 ? `${product.stock} in stock` : 'Out of stock'}
             </span>
