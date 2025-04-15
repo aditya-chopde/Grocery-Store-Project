@@ -28,7 +28,7 @@ export const categories: Category[] = [
   },
   {
     id: "pantry",
-    name: "Pantry",
+    name: "Groceries",
     image: "/placeholder.svg?height=200&width=200",
   },
 ]
