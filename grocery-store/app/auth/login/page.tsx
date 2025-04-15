@@ -39,6 +39,8 @@ export default function LoginPage() {
     password: "",
   });
 
+  const [emailNotVerified, setEmailNotVerified] = useState(false);
+
   // Validate form
   const validateForm = () => {
     let valid = true;
@@ -76,92 +78,89 @@ export default function LoginPage() {
     if (!validateForm()) return;
 
     setIsLoading(true);
+    setEmailNotVerified(false);
 
     const payload = {
       email: email,
       password: password,
     };
 
-    // Simulate API call
     const endPoint =
       role === "user" ? "/api/auth/user/login" : "/api/auth/shop/login";
 
-    // try {
-      // Define response interfaces
-      interface UserResponse {
-        user: {
-          email: string;
-          name: string;
-        };
-      }
-
-      interface ShopResponse {
-        shop: {
-          email: string;
-          shopName: string;
-        };
-      }
-
-      type LoginResponse = UserResponse | ShopResponse;
-
+    try {
       const response = await apiClient.post(endPoint, payload);
       const data = response.data;
-      
+
       if (!data.token) {
         throw new Error("Authentication failed - no token received");
+      }
+
+      // Check if email is verified
+      if (!data.emailVerified) {
+        setEmailNotVerified(true);
+        setIsLoading(false);
+        return;
       }
 
       // Handle both possible response formats
       const userData = data.user || data;
       const shopData = data.shop || data;
-      
+
       if (role === "user") {
         if (!userData.email) {
           throw new Error("Invalid login response - missing email");
         }
-        login({
-          email: userData.email,
-          name: userData.name || "User",
-          role: "user",
-          token: data.token
-        }, data.token);
+        login(
+          {
+            email: userData.email,
+            name: userData.name || "User",
+            role: "user",
+            token: data.token,
+          },
+          data.token
+        );
       } else {
         if (!shopData.email) {
           throw new Error("Invalid login response - missing email");
         }
-        login({
-          email: shopData.email,
-          name: shopData.shopName || shopData.name || "Shop Owner",
-          role: "admin",
-          token: data.token
-        }, data.token);
+        login(
+          {
+            email: shopData.email,
+            name: shopData.shopName || shopData.name || "Shop Owner",
+            role: "admin",
+            token: data.token,
+          },
+          data.token
+        );
       }
       toast({
         title: "Login successful",
         description: "Welcome back to Fresh Mart!",
       });
       router.push(role === "user" ? "/" : "/admin");
-    // } catch (error) {
-    //   alert(error);
-    // }
-
-    // Mock credentials check (in a real app, this would be handled by the backend)
-    // if (email === "user@example.com" && password === "password") {
-    //   login({ email, name: "John Doe", role: "user" });
-    //   toast({
-    //     title: "Login successful",
-    //     description: "Welcome back to Fresh Mart!",
-    //   });
-    //   router.push("/");
-    // } else {
-    //   toast({
-    //     title: "Login failed",
-    //     description:
-    //       "Invalid email or password. Try user@example.com / password",
-    //     variant: "destructive",
-    //   });
-    // }
-    setIsLoading(false);
+    } catch (error: any) {
+      console.log("Login error full:", error);
+      if (
+        (error.response &&
+          error.response.status === 403 &&
+          error.response.data.message === "Email not verified. Please verify your email before logging in.") ||
+        error.message === "Email not verified. Please verify your email before logging in."
+      ) {
+        setEmailNotVerified(true);
+      } else {
+        toast({
+          title: "Login failed",
+          description:
+            error.response?.data?.message ||
+            error.message ||
+            "Invalid email or password. Try user@example.com / password",
+          variant: "destructive",
+        });
+      }
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -240,10 +239,15 @@ export default function LoginPage() {
                 <p className="text-red-500 text-sm">{errors.password}</p>
               )}
             </div>
+            {emailNotVerified && (
+              <p className="text-yellow-600 text-center font-semibold">
+                Your email is not verified. Please check your inbox and verify your email before logging in.
+              </p>
+            )}
             <Button
               type="submit"
               className="w-full bg-green-600 hover:bg-green-700"
-              disabled={isLoading}
+              disabled={isLoading || emailNotVerified}
             >
               {isLoading ? (
                 <span className="flex items-center">

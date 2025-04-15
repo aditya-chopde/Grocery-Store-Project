@@ -80,6 +80,27 @@ export default function ProductsPage() {
     fetchData();
   }, []);
 
+  useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const coords = {
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude,
+          };
+          localStorage.setItem("userLocation", JSON.stringify(coords));
+        },
+        (error) => {
+          console.warn("Geolocation permission denied or unavailable.", error);
+          localStorage.removeItem("userLocation");
+        }
+      );
+    } else {
+      console.warn("Geolocation is not supported by this browser.");
+      localStorage.removeItem("userLocation");
+    }
+  }, []);
+
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold mb-6">All Products</h1>

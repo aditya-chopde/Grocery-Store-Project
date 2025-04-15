@@ -125,24 +125,22 @@ export default function RegisterPage() {
       const endpoint = `/api/auth/${role === "user" ? "user" : "shop"}/signup`
       try {
         const response = await apiClient.post(endpoint, payload)
-        const data = response.data
+        const data = response.data.data
         
         if (!data.token) {
           throw new Error("Registration failed - no token received")
         }
 
-        register({
-          email: formData.email,
-          name: formData.name,
-          role,
-          token: data.token
-        }, data.token)
-        
-        router.push(`${role === "user" ? "/" : "/admin"}`)
+        // Do not auto login user until email is verified
         toast({
           title: "Registration successful",
-          description: "Your account has been created successfully!",
+          description: "Your account has been created successfully! Please check your email to verify your account before logging in.",
         })
+
+        router.push('/auth/login')
+
+        // Optionally clear form or disable submit button here
+        router.push(`${role === "user" ? "/" : "/admin"}`)
       } catch (error: any) {
         console.log('Registration error:', error.response?.data || error.message)
         throw new Error(error.response?.data?.message || 'Registration failed')
