@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { Search, SlidersHorizontal } from "lucide-react";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import { Input } from "../../components/ui/input";
+import { Button } from "../../components/ui/button";
 import {
   Sheet,
   SheetContent,
@@ -11,15 +11,15 @@ import {
   SheetHeader,
   SheetTitle,
   SheetTrigger,
-} from "@/components/ui/sheet";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Label } from "@/components/ui/label";
-import { Slider } from "@/components/ui/slider";
-import ProductCard from "@/components/product-card";
-import type { Product } from "@/types";
-import { categories } from "@/data/categories";
-import Pagination from "@/components/pagination";
-import apiClient from "@/lib/api-client";
+} from "../../components/ui/sheet";
+import { Checkbox } from "../../components/ui/checkbox";
+import { Label } from "../../components/ui/label";
+import { Slider } from "../../components/ui/slider";
+import ProductCard from "../../components/product-card";
+import type { Product } from "../../types";
+import { categories } from "../../data/categories";
+import Pagination from "../../components/pagination";
+import apiClient from "../../lib/api-client";
 
 export default function ProductsPage() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -33,7 +33,8 @@ export default function ProductsPage() {
   const filteredProducts = products.filter((product) => {
     const matchesSearch = searchQuery
       ? product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        product.description.toLowerCase().includes(searchQuery.toLowerCase())
+        product.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (product.shopName && product.shopName.toLowerCase().includes(searchQuery.toLowerCase()))
       : true;
 
     const matchesCategory =
@@ -101,7 +102,7 @@ export default function ProductsPage() {
                 placeholder="Search products..."
                 className="pl-10"
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchQuery(e.target.value)}
               />
             </div>
 
