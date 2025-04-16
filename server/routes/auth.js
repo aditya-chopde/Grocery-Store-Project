@@ -10,6 +10,7 @@ router.post('/user/login', login);
 // Shop Signup and Login Route
 router.post('/shop/signup', shopController.signup);
 router.post('/shop/login', shopController.login);
+router.get('/shop/verify-email/:token', shopController.verifyEmail);
 
 // Verify Email
 router.get('/verify-email/:token', verifyEmail);

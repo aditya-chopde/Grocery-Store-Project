@@ -96,16 +96,21 @@ export default function LoginPage() {
         throw new Error("Authentication failed - no token received");
       }
 
-      // Check if email is verified
-      if (!data.emailVerified) {
+      // Handle both possible response formats
+      const userData = data.user || data;
+      const shopData = data.shop || data;
+
+      // Check if email is verified depending on role
+      const emailVerified =
+        role === "user"
+          ? userData.emailVerified ?? data.emailVerified
+          : shopData.emailVerified ?? data.emailVerified;
+
+      if (!emailVerified) {
         setEmailNotVerified(true);
         setIsLoading(false);
         return;
       }
-
-      // Handle both possible response formats
-      const userData = data.user || data;
-      const shopData = data.shop || data;
 
       if (role === "user") {
         if (!userData.email) {
