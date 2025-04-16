@@ -44,8 +44,8 @@ export default function CheckoutPage() {
   const fetchAddressDetails = async (email: string) => {
     await apiClient.get(`/api/orders/get/address/${email}`).then((data) => {
       console.log(data);
-      if (data.success === true) {
-        const addressDetails = data.address;
+      if (data.data.success === true) {
+        const addressDetails = data.data.address;
         console.log(addressDetails);
         setFirstName(addressDetails.firstName);
         setLastName(addressDetails.lastName);

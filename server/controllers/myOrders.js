@@ -356,7 +356,7 @@ exports.addAddress = async (req, res) => {
 
     return res.json({ success: true, message: 'Address added successfully', addAddressDb })
   } catch (error) {
-      return res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: 'Failed to add address order details'
     });
@@ -374,8 +374,10 @@ exports.fetchAddressDetails = async (req, res) => {
       });
     }
     return res.status(200).json({
-      success: true,
-      address
+      data: {
+        success: true,
+        address
+      }
     });
   } catch (error) {
     return res.status(500).json({
