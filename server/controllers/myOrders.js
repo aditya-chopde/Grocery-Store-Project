@@ -1,6 +1,7 @@
 const { default: mongoose } = require('mongoose');
 const MyOrders = require('../models/myOrders');
 const Product = require('../models/product');
+const Address = require('../models/address');
 
 // Helper function to validate order items
 const validateOrderItems = async (products) => {
@@ -59,7 +60,7 @@ exports.createOrder = async (req, res) => {
       if (!product) {
         throw new Error(`Product not found: ${item.productId}`);
       }
-      
+
       // Verify sufficient stock before deducting
       if (product.stock < item.quantity) {
         throw new Error(`Insufficient stock for ${product.name}`);
@@ -333,6 +334,53 @@ exports.getOrderDetails = async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Failed to fetch order details'
+    });
+  }
+};
+
+exports.addAddress = async (req, res) => {
+  try {
+    const { firstName, lastName, email, phone, streetAddress, apartment, city, state, zipCode } = req.body;
+
+    const addAddressDb = await Address.create({
+      firstName,
+      lastName,
+      email,
+      phone,
+      streetAddress,
+      apartment,
+      city,
+      state,
+      zipCode
+    })
+
+    return res.json({ success: true, message: 'Address added successfully', addAddressDb })
+  } catch (error) {
+      return res.status(500).json({
+      success: false,
+      message: 'Failed to add address order details'
+    });
+  }
+};
+
+exports.fetchAddressDetails = async (req, res) => {
+  try {
+    const { email } = req.params;
+    const address = await Address.findOne({ email });
+    if (!address) {
+      return res.status(404).json({
+        success: false,
+        message: 'Address not found'
+      });
+    }
+    return res.status(200).json({
+      success: true,
+      address
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to fetch address details'
     });
   }
 };

@@ -37,4 +37,7 @@ router.put('/:orderId/status', myOrdersController.updateOrderStatus);
 // @access  Private/ShopAdmin
 router.put('/:orderId/items/:productId/status', myOrdersController.updateItemStatus);
 
+router.post("/add/address", myOrdersController.addAddress);
+router.get("/get/address/:email", myOrdersController.fetchAddressDetails);
+
 module.exports = router;

@@ -2,7 +2,7 @@
 
 import type React from "react";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
@@ -24,66 +24,97 @@ export default function CheckoutPage() {
   const router = useRouter();
   const { cart, clearCart } = useCart();
   const { toast } = useToast();
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const { isAuthenticated, user } = useAuth();
-  
-  if (!isAuthenticated()) {
-    return (
-      <div className="container mx-auto px-4 py-16 text-center">
-        <h1 className="text-2xl font-bold mb-4">
-          Please login to checkout
-        </h1>
-        <p className="text-gray-500 mb-8">
-          You need to be logged in to complete your purchase.
-        </p>
-        <Button asChild className="bg-green-600 hover:bg-green-700">
-          <Link href="/auth/login">Login Now</Link>
-        </Button>
-      </div>
-    );
-  }
 
-  const email = user?.email || "";
+  // Form states
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [emailClient, setEmailClient] = useState("");
+  const [streetAddress, setStreetAddress] = useState("");
+  const [apartment, setApartment] = useState("");
+  const [city, setCity] = useState("");
+  const [state, setState] = useState("");
+  const [zipCode, setZipCode] = useState("");
+  const [phone, setPhone] = useState("");
+
+  // Must be declared outside conditional render
   const [orderError, setOrderError] = useState<string | null>(null);
 
-  // Calculate totals
+  const fetchAddressDetails = async (email: string) => {
+    await apiClient.get(`/api/orders/get/address/${email}`).then((data) => {
+      console.log(data);
+      if (data.success === true) {
+        const addressDetails = data.address;
+        console.log(addressDetails);
+        setFirstName(addressDetails.firstName);
+        setLastName(addressDetails.lastName);
+        setStreetAddress(addressDetails.streetAddress);
+        setApartment(addressDetails.apartment || "");
+        setCity(addressDetails.city);
+        setState(addressDetails.state);
+        setZipCode(addressDetails.zipCode);
+        setPhone(addressDetails.phone || "");
+      } else {
+        console.log("Address Not Found");
+      }
+    });
+  };
+
+  useEffect(() => {
+    if (user?.email) {
+      setEmailClient(user.email);
+      fetchAddressDetails(user.email); // update to pass email
+    }
+  }, [user]);
+
+  const email = user?.email || "";
+
   const subtotal = cart.reduce(
     (total, item) => total + item.product.price * item.quantity,
     0
   );
   const shipping = subtotal > 50 ? 0 : 5.99;
-  const tax = subtotal * 0.07; // 7% tax
+  const tax = subtotal * 0.07;
   const total = subtotal + shipping + tax;
 
-  // Handle form submission
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
 
     try {
-      await apiClient
-        .post("/api/orders", {
-          email,
-          products: cart.map((item) => ({
-            productId: item.product._id,
-            quantity: item.quantity,
-            price: item.product.price,
-            status: "pending", // Initialize status for each item
-          })),
-          totalPrice: total,
-          shippingAddress: {
-            firstName: (e.currentTarget as HTMLFormElement).firstName.value,
-            lastName: (e.currentTarget as HTMLFormElement).lastName.value,
-            address: (e.currentTarget as HTMLFormElement).address.value,
-            city: (e.currentTarget as HTMLFormElement).city.value,
-            state: (e.currentTarget as HTMLFormElement).state.value,
-            zipCode: (e.currentTarget as HTMLFormElement).zipCode.value,
-          },
-          paymentMethod: "card", // Default for now
-        })
-        .then((res) => {
-          console.log(res);
-        });
+      await apiClient.post("/api/orders", {
+        email,
+        products: cart.map((item) => ({
+          productId: item.product._id,
+          quantity: item.quantity,
+          price: item.product.price,
+          status: "pending",
+        })),
+        totalPrice: total,
+        shippingAddress: {
+          firstName: firstName,
+          lastName: lastName,
+          address: streetAddress,
+          city: city,
+          state: state,
+          zipCode: zipCode,
+        },
+        paymentMethod: "card",
+      });
+
+      const setAddress = await apiClient.post("/api/orders/add/address", {
+        firstName,
+        lastName,
+        email,
+        phone,
+        streetAddress,
+        apartment,
+        city,
+        state,
+        zipCode,
+      });
+      console.log(setAddress);
 
       await clearCart();
       router.push("/checkout/success");
@@ -126,6 +157,20 @@ export default function CheckoutPage() {
     }
   };
 
+  if (!isAuthenticated()) {
+    return (
+      <div className="container mx-auto px-4 py-16 text-center">
+        <h1 className="text-2xl font-bold mb-4">Please login to checkout</h1>
+        <p className="text-gray-500 mb-8">
+          You need to be logged in to complete your purchase.
+        </p>
+        <Button asChild className="bg-green-600 hover:bg-green-700">
+          <Link href="/auth/login">Login Now</Link>
+        </Button>
+      </div>
+    );
+  }
+
   // Redirect if cart is empty
   if (cart.length === 0) {
     return (
@@ -156,19 +201,41 @@ export default function CheckoutPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="firstName">First Name</Label>
-                    <Input id="firstName" required />
+                    <Input
+                      id="firstName"
+                      required
+                      value={firstName}
+                      onChange={(e) => setFirstName(e.target.value)}
+                    />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="lastName">Last Name</Label>
-                    <Input id="lastName" required />
+                    <Input
+                      id="lastName"
+                      required
+                      value={lastName}
+                      onChange={(e) => setLastName(e.target.value)}
+                    />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="email">Email Address</Label>
-                    <Input id="email" type="email" required />
+                    <Input
+                      id="email"
+                      type="email"
+                      required
+                      value={emailClient}
+                      onChange={(e) => setEmailClient(e.target.value)}
+                    />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="phone">Phone Number</Label>
-                    <Input id="phone" type="tel" required />
+                    <Input
+                      id="phone"
+                      type="tel"
+                      required
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                    />
                   </div>
                 </div>
               </CardContent>
@@ -181,26 +248,50 @@ export default function CheckoutPage() {
                 <div className="space-y-4">
                   <div className="space-y-2">
                     <Label htmlFor="address">Street Address</Label>
-                    <Input id="address" required />
+                    <Input
+                      id="address"
+                      required
+                      value={streetAddress}
+                      onChange={(e) => setStreetAddress(e.target.value)}
+                    />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="apartment">
                       Apartment, suite, etc. (optional)
                     </Label>
-                    <Input id="apartment" />
+                    <Input
+                      id="apartment"
+                      value={apartment}
+                      onChange={(e) => setApartment(e.target.value)}
+                    />
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="city">City</Label>
-                      <Input id="city" required />
+                      <Input
+                        id="city"
+                        required
+                        value={city}
+                        onChange={(e) => setCity(e.target.value)}
+                      />
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="state">State</Label>
-                      <Input id="state" required />
+                      <Input
+                        id="state"
+                        required
+                        value={state}
+                        onChange={(e) => setState(e.target.value)}
+                      />
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="zipCode">ZIP Code</Label>
-                      <Input id="zipCode" required />
+                      <Input
+                        id="zipCode"
+                        required
+                        value={zipCode}
+                        onChange={(e) => setZipCode(e.target.value)}
+                      />
                     </div>
                   </div>
                 </div>
