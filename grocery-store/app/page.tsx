@@ -14,7 +14,7 @@ export default function Home() {
       <section className="relative rounded-xl overflow-hidden mb-12">
         <div className="absolute inset-0 bg-gradient-to-r from-green-900/80 to-transparent z-10" />
         <Image
-          src="/hero_image.jpg?height=500&width=1200"
+          src="https://www.northwestfamilyclinics.com/application/files/thumbnails/small/5716/7824/1887/12_Healthy_Foods.webp"
           alt="Fresh groceries delivered to your door"
           width={1200}
           height={500}
