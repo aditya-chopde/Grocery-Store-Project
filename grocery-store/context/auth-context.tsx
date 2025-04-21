@@ -1,5 +1,6 @@
 "use client"
 
+import { useRouter } from "next/router"
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
 
 // Define user type
@@ -83,6 +84,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // Logout function
   const logout = () => {
     clearAuthData()
+    const router = useRouter();
+    router.push("/auth/login");
   }
 
   return (

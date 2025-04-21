@@ -125,8 +125,8 @@ export default function RegisterPage() {
       const endpoint = `/api/auth/${role === "user" ? "user" : "shop"}/signup`
       try {
         const response = await apiClient.post(endpoint, payload)
-        const data = response.data.data
-        
+        const data = response.data
+        console.log(data)
         if (!data.token) {
           throw new Error("Registration failed - no token received")
         }
@@ -140,7 +140,6 @@ export default function RegisterPage() {
         router.push('/auth/login')
 
         // Optionally clear form or disable submit button here
-        router.push(`${role === "user" ? "/" : "/admin"}`)
       } catch (error: any) {
         console.log('Registration error:', error.response?.data || error.message)
         throw new Error(error.response?.data?.message || 'Registration failed')
