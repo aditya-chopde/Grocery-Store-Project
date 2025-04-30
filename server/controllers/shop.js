@@ -41,7 +41,7 @@ exports.signup = async (req, res) => {
       },
     });
 
-    const verificationUrl = `${req.protocol}://${req.get('host')}/api/shop/verify-email/${verificationToken}`;
+    const verificationUrl = `${req.protocol}://${req.get('host')}/api/auth/shop/verify-email/${verificationToken}`;
     const mailOptions = {
       from: process.env.EMAIL_USER,
       to: shop.email,

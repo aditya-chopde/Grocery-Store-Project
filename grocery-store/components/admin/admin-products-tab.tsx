@@ -435,7 +435,7 @@ export default function AdminProductsTab() {
                 <TableCell className="font-medium">{product.name}</TableCell>
                 <TableCell>{product.category}</TableCell>
                 <TableCell className="text-right">
-                  ${product.price.toFixed(2)}
+                  ₹{product.price.toFixed(2)}
                 </TableCell>
                 <TableCell className="text-right">
                   {product.stock}

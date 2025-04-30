@@ -264,7 +264,7 @@ export default function AdminOrdersTab() {
                 </TableCell>
                 <TableCell>{getStatusBadge(order.status)}</TableCell>
                 <TableCell className="text-right">
-                  ${order.totalPrice.toFixed(2)}
+                ₹{order.totalPrice.toFixed(2)}
                 </TableCell>
                 <TableCell className="text-right">
                   <Button
@@ -388,13 +388,13 @@ export default function AdminOrdersTab() {
                             </Select>
                           </TableCell>
                           <TableCell className="text-right">
-                            ${item.productId.price.toFixed(2)}
+                            ₹{item.productId.price.toFixed(2)}
                           </TableCell>
                           <TableCell className="text-right">
                             {item.quantity}
                           </TableCell>
                           <TableCell className="text-right">
-                            ${(item.productId.price * item.quantity).toFixed(2)}
+                            ₹{(item.productId.price * item.quantity).toFixed(2)}
                           </TableCell>
                         </TableRow>
                       ))}
@@ -406,7 +406,7 @@ export default function AdminOrdersTab() {
                           Total
                         </TableCell>
                         <TableCell className="text-right font-bold">
-                          ${selectedOrder.totalPrice.toFixed(2)}
+                          ₹{selectedOrder.totalPrice.toFixed(2)}
                         </TableCell>
                       </TableRow>
                     </TableBody>
