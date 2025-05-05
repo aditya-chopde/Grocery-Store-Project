@@ -61,7 +61,7 @@ export function OrderCard({ order }: OrderCardProps) {
                   <div className="flex-1">
                     <h4 className="font-medium">{item.productId.name}</h4>
                     <p className="text-sm text-gray-500">
-                      {item.quantity} × ${item.price.toFixed(2)}
+                      {item.quantity} × ₹{item.price.toFixed(2)}
                     </p>
                     <span className={`text-xs px-2 py-1 rounded-full ${
                       item.status === 'delivered' 
@@ -74,7 +74,7 @@ export function OrderCard({ order }: OrderCardProps) {
                     </span>
                   </div>
                   <div className="font-medium">
-                    ${(item.quantity * item.price).toFixed(2)}
+                    ₹{(item.quantity * item.price).toFixed(2)}
                   </div>
                 </div>
               ))}
@@ -83,7 +83,7 @@ export function OrderCard({ order }: OrderCardProps) {
             <div className="mt-6 pt-4 border-t">
               <div className="flex justify-between">
                 <span>Subtotal</span>
-                <span>${order.totalPrice.toFixed(2)}</span>
+                <span>₹{order.totalPrice.toFixed(2)}</span>
               </div>
               <div className="flex justify-between mt-2">
                 <span>Shipping</span>
@@ -91,7 +91,7 @@ export function OrderCard({ order }: OrderCardProps) {
               </div>
               <div className="flex justify-between mt-2 font-medium">
                 <span>Total</span>
-                <span>${order.totalPrice.toFixed(2)}</span>
+                <span>₹{order.totalPrice.toFixed(2)}</span>
               </div>
             </div>
           </div>
