@@ -3,8 +3,8 @@
 import { useState } from "react";
 import { Eye, Search } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Button } from "../../components/ui/button";
+import { Input } from "../../components/ui/input";
 import {
   Table,
   TableBody,
@@ -12,27 +12,27 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
+} from "../../components/ui/table";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
+} from "../../components/ui/dialog";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
-import { useToast } from "@/components/ui/use-toast";
+} from "../../components/ui/select";
+import { Badge } from "../../components/ui/badge";
+import { useToast } from "../../components/ui/use-toast";
 
 import { useEffect } from "react";
-import { useAuth } from "@/context/auth-context";
-import apiClient from "@/lib/api-client";
+import { useAuth } from "../../context/auth-context";
+import apiClient from "../../lib/api-client";
 
 interface Order {
   _id: string;
@@ -65,38 +65,19 @@ export default function AdminOrdersTab() {
 
   useEffect(() => {
     const fetchOrders = async () => {
-      // try {
-      // let url = '/api/orders'
-      // if (user?.role === 'shop') {
       const dataUser = localStorage.getItem("user");
       const user = JSON.parse(dataUser || "{}");
       const shopName = user.name;
       console.log(user);
-      // For shop users, get their orders using the shop-specific endpoint
       const response = await apiClient.get(`/api/orders/shop/${shopName}`);
       console.log(response.data.orders);
       setOrders(response.data.orders || []);
-      // } else {
-      // For admins, get all orders
-      // const { data } = await apiClient.get(url)
-      // setOrders(data.orders || data.data?.orders || [])
-      // }
-      // } catch (error: any) {
-      //   console.error('Error fetching orders:', error)
-      //   toast({
-      //     title: "Error",
-      //     description: error.response?.data?.message || "Failed to fetch orders",
-      //     variant: "destructive"
-      //   })
-      // } finally {
       setLoading(false);
-      // }
     };
 
     fetchOrders();
   }, [user]);
 
-  // Filter orders based on search query and status
   const filteredOrders = orders.filter((order) => {
     const matchesSearch =
       order._id.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -108,13 +89,11 @@ export default function AdminOrdersTab() {
     return matchesSearch && matchesStatus;
   });
 
-  // Handle view order details
   const handleViewOrder = (order: Order) => {
     setSelectedOrder(order);
     setIsViewDialogOpen(true);
   };
 
-  // Handle update order status
   const handleUpdateStatus = async (orderId: string, newStatus: string) => {
     try {
       const { data: updatedOrder } = await apiClient.put(
@@ -127,6 +106,7 @@ export default function AdminOrdersTab() {
           order._id === orderId ? updatedOrder.order : order
         )
       );
+      setSelectedOrder(updatedOrder.order);
       setIsViewDialogOpen(false);
     } catch (error: any) {
       console.error("Error updating status:", error);
@@ -139,13 +119,39 @@ export default function AdminOrdersTab() {
     }
   };
 
-  // Handle update item status
   const handleUpdateItemStatus = async (
     orderId: string,
     productId: string,
     newStatus: string
   ) => {
+    if (!selectedOrder) {
+      toast({
+        title: "Error",
+        description: "No order selected",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const productExists = selectedOrder.products.some(
+      (item) => item.productId._id === productId
+    );
+
+    if (!productExists) {
+      toast({
+        title: "Error",
+        description: "Product not found in the selected order",
+        variant: "destructive",
+      });
+      console.error(
+        `Product with ID ${productId} not found in order ${orderId}`
+      );
+      return;
+    }
+
     try {
+      console.log(`Updating item status for orderId: ${orderId}, productId: ${productId}`);
+
       const { data } = await apiClient.put(
         `/api/orders/${orderId}/items/${productId}/status`,
         {
@@ -153,14 +159,15 @@ export default function AdminOrdersTab() {
         }
       );
 
-      // ✅ Fix: assume data contains the updated order directly
-      const updatedOrder = data.order || data; // fallback in case it's directly returned
+      const updatedOrder = data.order || data;
 
       setOrders((prevOrders) =>
         prevOrders.map((order) =>
           order._id === orderId ? updatedOrder : order
         )
       );
+
+      setSelectedOrder(updatedOrder);
 
       toast({
         title: "Status Updated",
@@ -180,9 +187,7 @@ export default function AdminOrdersTab() {
 
   if (loading) return <div className="text-center py-8">Loading orders...</div>;
 
-  // Get badge color based on status
   const getStatusBadge = (status: string) => {
-    // Normalize status to lowercase for comparison
     const normalizedStatus = status.toLowerCase();
 
     switch (normalizedStatus) {
@@ -215,12 +220,12 @@ export default function AdminOrdersTab() {
         <div className="flex gap-4 w-full sm:w-auto">
           <div className="relative flex-1 sm:flex-initial">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-            <Input
-              placeholder="Search orders..."
-              className="pl-10"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
+              <Input
+                placeholder="Search orders..."
+                className="pl-10"
+                value={searchQuery}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchQuery(e.target.value)}
+              />
           </div>
           <Select value={statusFilter} onValueChange={setStatusFilter}>
             <SelectTrigger className="w-[180px]">
@@ -237,7 +242,6 @@ export default function AdminOrdersTab() {
         </div>
       </div>
 
-      {/* Orders Table */}
       <div className="border rounded-lg overflow-hidden">
         <Table>
           <TableHeader>
@@ -264,7 +268,7 @@ export default function AdminOrdersTab() {
                 </TableCell>
                 <TableCell>{getStatusBadge(order.status)}</TableCell>
                 <TableCell className="text-right">
-                ₹{order.totalPrice.toFixed(2)}
+                  ₹{(order.totalPrice ?? 0).toFixed(2)}
                 </TableCell>
                 <TableCell className="text-right">
                   <Button
@@ -289,7 +293,6 @@ export default function AdminOrdersTab() {
         </Table>
       </div>
 
-      {/* View Order Dialog */}
       {selectedOrder && (
         <Dialog open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen}>
           <DialogContent className="sm:max-w-[625px]">
@@ -361,7 +364,7 @@ export default function AdminOrdersTab() {
                           <TableCell>
                             <Select
                               value={item.status}
-                              onValueChange={(value) =>
+                              onValueChange={(value: string) =>
                                 handleUpdateItemStatus(
                                   selectedOrder._id,
                                   item.productId._id,
@@ -388,13 +391,13 @@ export default function AdminOrdersTab() {
                             </Select>
                           </TableCell>
                           <TableCell className="text-right">
-                            ₹{item.productId.price.toFixed(2)}
+                            ₹{(item.productId.price ?? 0).toFixed(2)}
                           </TableCell>
                           <TableCell className="text-right">
                             {item.quantity}
                           </TableCell>
                           <TableCell className="text-right">
-                            ₹{(item.productId.price * item.quantity).toFixed(2)}
+                            ₹{((item.productId.price ?? 0) * item.quantity).toFixed(2)}
                           </TableCell>
                         </TableRow>
                       ))}
@@ -414,32 +417,6 @@ export default function AdminOrdersTab() {
                 </div>
               </div>
 
-              {/* <div>
-                <h3 className="text-sm font-medium text-gray-500 mb-2">
-                  Update Status
-                </h3>
-                <div className="flex gap-2">
-                  <Select defaultValue={selectedOrder.status}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="processing">Processing</SelectItem>
-                      <SelectItem value="shipped">Shipped</SelectItem>
-                      <SelectItem value="completed">Completed</SelectItem>
-                      <SelectItem value="cancelled">Cancelled</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <Button
-                    onClick={() =>
-                      handleUpdateStatus(selectedOrder._id, "completed")
-                    }
-                    className="bg-green-600 hover:bg-green-700"
-                  >
-                    Update
-                  </Button>
-                </div>
-              </div> */}
             </div>
           </DialogContent>
         </Dialog>

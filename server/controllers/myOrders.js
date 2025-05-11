@@ -238,7 +238,7 @@ exports.updateItemStatus = async (req, res) => {
 
     // Update status
     order.products[itemIndex].status = status;
-    const updatedOrder = await order.save();
+    let updatedOrder = await order.save();
 
     // If all items are delivered, mark order as delivered
     if (status === 'delivered') {
@@ -251,11 +251,16 @@ exports.updateItemStatus = async (req, res) => {
       }
     }
 
+    // Populate products.productId after save
+    updatedOrder = await MyOrders.findById(updatedOrder._id).populate('products.productId', 'name price shopName');
+
+    console.log('Updated order after item status change:', updatedOrder);
+
     res.status(200).json({
       data: {
         success: true,
         message: 'Item status updated',
-        order
+        order: updatedOrder
       }
     });
 
@@ -285,7 +290,7 @@ exports.updateOrderStatus = async (req, res) => {
       orderId,
       { status },
       { new: true, runValidators: true }
-    ).populate('products.productId', 'name price');
+    ).populate('products.productId', 'name price shopName');
 
     if (!updatedOrder) {
       return res.status(404).json({
